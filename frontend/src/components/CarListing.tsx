@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, Filter, Grid, List, MapPin, Calendar, Fuel, Settings } from 'lucide-react';
 
 export interface Car {
@@ -16,8 +16,11 @@ export interface Car {
   description: string;
 }
 
-const CarListing: React.FC = () => {
-  const [cars, setCars] = useState<Car[]>([]);
+interface CarListingProps {
+  cars: Car[];
+}
+
+const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState({
@@ -28,54 +31,7 @@ const CarListing: React.FC = () => {
     fuelType: ''
   });
 
-  // Sample data - In real app, this would come from API
-  useEffect(() => {
-    const sampleCars: Car[] = [
-      {
-        id: 1,
-        make: 'Toyota',
-        model: 'Camry',
-        year: 2022,
-        price: 285000,
-        mileage: 25000,
-        fuelType: 'Hybrid',
-        transmission: 'Automatic',
-        location: 'Oslo',
-        image: '/api/placeholder/400/300',
-        features: ['Leather Seats', 'Navigation', 'Backup Camera', 'Bluetooth'],
-        description: 'Excellent condition Toyota Camry with low mileage and premium features.'
-      },
-      {
-        id: 2,
-        make: 'BMW',
-        model: 'X5',
-        year: 2021,
-        price: 650000,
-        mileage: 35000,
-        fuelType: 'Gasoline',
-        transmission: 'Automatic',
-        location: 'Bergen',
-        image: '/api/placeholder/400/300',
-        features: ['All-Wheel Drive', 'Premium Sound', 'Sunroof', 'Heated Seats'],
-        description: 'Luxury BMW X5 with premium features and excellent performance.'
-      },
-      {
-        id: 3,
-        make: 'Tesla',
-        model: 'Model 3',
-        year: 2023,
-        price: 420000,
-        mileage: 8000,
-        fuelType: 'Electric',
-        transmission: 'Automatic',
-        location: 'Stavanger',
-        image: '/api/placeholder/400/300',
-        features: ['Autopilot', 'Supercharging', 'Premium Interior', 'Over-the-Air Updates'],
-        description: 'Latest Tesla Model 3 with cutting-edge technology and minimal mileage.'
-      }
-    ];
-    setCars(sampleCars);
-  }, []);
+
 
   const filteredCars = cars.filter(car => {
     return (
@@ -155,40 +111,37 @@ const CarListing: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
+      {/* Search and View Controls */}
+      <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Auto-Wheel</h1>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search cars..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
+            <div className="relative flex-1 max-w-lg">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search cars..."
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center space-x-2 ml-4">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+              >
+                <List className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">

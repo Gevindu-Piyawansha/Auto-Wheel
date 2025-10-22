@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Car } from './CarListing';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface AdminDashboardProps {
   cars: Car[];
@@ -15,6 +16,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onEditCar,
   onDeleteCar
 }) => {
+  const { user } = useAuth();
   const [isAddingCar, setIsAddingCar] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<Partial<Car>>({
@@ -78,7 +80,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Manage your car listings</p>
+              <p className="text-gray-600">Welcome back, {user?.name}</p>
             </div>
             <button
               onClick={() => setIsAddingCar(true)}
