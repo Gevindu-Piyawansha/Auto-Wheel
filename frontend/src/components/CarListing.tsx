@@ -3,6 +3,8 @@ import { Search, Filter, Grid, List, X, MessageCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { inquiryFormSchema, type InquiryFormData } from '../validation/inquirySchema';
+import LoadingSpinner from './LoadingSpinner';
+import { CarCardSkeleton } from './Skeleton';
 
 export interface Inquiry {
   id: string;
@@ -57,6 +59,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [inquiryCar, setInquiryCar] = useState<Car | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
@@ -81,6 +84,14 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         console.error('Error loading inquiries from localStorage:', error);
       }
     }
+  }, []);
+
+  // Simulate initial loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   const filteredCars = cars.filter(car => {
@@ -759,38 +770,53 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
           {/* Car Grid */}
           <div className="lg:w-3/4">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">{filteredCars.length} cars found</p>
-              <select className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                <option>Sort by: Price (Low to High)</option>
-                <option>Sort by: Price (High to Low)</option>
-                <option>Sort by: Year (Newest)</option>
-                <option>Sort by: Mileage (Lowest)</option>
-              </select>
-            </div>
-
-            <div className={viewMode === 'grid' ?
-              "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
-              "space-y-4"
-            }>
-              {filteredCars.map(car => (
-                <CarCard key={car.id} car={car} />
-              ))}
-            </div>
-
-            {filteredCars.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
-                <button
-                  onClick={() => setFilters({
-                    minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
-                    category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
-                  })}
-                  className="mt-4 text-blue-600 hover:text-blue-700"
-                >
-                  Clear filters
-                </button>
+            {!isLoading && (
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-gray-600">{filteredCars.length} cars found</p>
+                <select className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                  <option>Sort by: Price (Low to High)</option>
+                  <option>Sort by: Price (High to Low)</option>
+                  <option>Sort by: Year (Newest)</option>
+                  <option>Sort by: Mileage (Lowest)</option>
+                </select>
               </div>
+            )}
+
+            {isLoading ? (
+              <div className={viewMode === 'grid' ?
+                "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                "space-y-4"
+              }>
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <CarCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className={viewMode === 'grid' ?
+                  "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                  "space-y-4"
+                }>
+                  {filteredCars.map(car => (
+                    <CarCard key={car.id} car={car} />
+                  ))}
+                </div>
+
+                {filteredCars.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
+                    <button
+                      onClick={() => setFilters({
+                        minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
+                        category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
+                      })}
+                      className="mt-4 text-blue-600 hover:text-blue-700"
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
