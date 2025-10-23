@@ -184,7 +184,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     onChange={(e) => setFilters({...filters, fuelType: e.target.value})}
                   >
                     <option value="">All Types</option>
-                    <option value="Gasoline">Gasoline</option>
+                    <option value="Petrol">Petrol</option>
                     <option value="Hybrid">Hybrid</option>
                     <option value="Electric">Electric</option>
                   </select>
