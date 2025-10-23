@@ -30,7 +30,26 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:ci": "CI=true react-scripts test --coverage",
     "eject": "react-scripts eject"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/reportWebVitals.ts",
+      "!src/setupTests.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 50,
+        "lines": 50,
+        "statements": 50
+      }
+    }
   },
   "eslintConfig": {
     "extends": [
