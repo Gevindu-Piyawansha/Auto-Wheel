@@ -4,6 +4,7 @@ import CarListing, { Car } from './components/CarListing';
 import AdminDashboard from './components/AdminDashboard';
 import LoginModal from './components/LoginModal';
 import AutoWheelLogo from './components/AutoWheelLogo';
+import ErrorBoundary from './components/ErrorBoundary';
 import { getCarImage } from './utils/carImages';
 import { LogIn, LogOut, User, Settings } from 'lucide-react';
 import './App.css';
@@ -255,9 +256,11 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
