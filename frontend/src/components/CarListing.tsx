@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Grid, List, MapPin, Calendar, Fuel, Settings } from 'lucide-react';
+import { Search, Filter, Grid, List } from 'lucide-react';
 
 export interface Car {
   id: number;

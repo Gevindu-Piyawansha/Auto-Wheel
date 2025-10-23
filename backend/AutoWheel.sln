@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoWheel.Api", "AutoWheel.Api\AutoWheel.Api.csproj", "{137131D0-DCB4-434B-BB84-2A21E74762B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoWheel.Domain", "AutoWheel.Domain\AutoWheel.Domain.csproj", "{7867B5F6-54F4-4134-9F75-E11F007D5400}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoWheel.Application", "AutoWheel.Application\AutoWheel.Application.csproj", "{112198D6-659A-423A-A282-E8D29BA28720}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoWheel.Infrastructure", "AutoWheel.Infrastructure\AutoWheel.Infrastructure.csproj", "{89CF8996-7823-4CB2-B8B0-6B871CE1C284}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{137131D0-DCB4-434B-BB84-2A21E74762B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{137131D0-DCB4-434B-BB84-2A21E74762B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{137131D0-DCB4-434B-BB84-2A21E74762B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{137131D0-DCB4-434B-BB84-2A21E74762B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7867B5F6-54F4-4134-9F75-E11F007D5400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7867B5F6-54F4-4134-9F75-E11F007D5400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7867B5F6-54F4-4134-9F75-E11F007D5400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7867B5F6-54F4-4134-9F75-E11F007D5400}.Release|Any CPU.Build.0 = Release|Any CPU
+		{112198D6-659A-423A-A282-E8D29BA28720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{112198D6-659A-423A-A282-E8D29BA28720}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{112198D6-659A-423A-A282-E8D29BA28720}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{112198D6-659A-423A-A282-E8D29BA28720}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89CF8996-7823-4CB2-B8B0-6B871CE1C284}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89CF8996-7823-4CB2-B8B0-6B871CE1C284}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89CF8996-7823-4CB2-B8B0-6B871CE1C284}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89CF8996-7823-4CB2-B8B0-6B871CE1C284}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
