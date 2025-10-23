@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Grid, List, X, MessageCircle } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { inquiryFormSchema, type InquiryFormData } from '../validation/inquirySchema';
 
 export interface Inquiry {
   id: string;
@@ -307,18 +310,19 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   );
 
   const InquiryFormModal: React.FC<{ car: Car; onClose: () => void; onSubmit: (inquiry: Inquiry) => void }> = ({ car, onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({
-      customerName: '',
-      customerEmail: '',
-      customerPhone: '',
-      customerMessage: '',
-      inquiryType: 'general' as Inquiry['inquiryType'],
-      preferredContactMethod: 'whatsapp' as Inquiry['preferredContactMethod']
+    const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting },
+    } = useForm<InquiryFormData>({
+      resolver: zodResolver(inquiryFormSchema),
+      defaultValues: {
+        inquiryType: 'general',
+        preferredContactMethod: 'whatsapp',
+      },
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-
+    const onFormSubmit = (data: InquiryFormData) => {
       const inquiry: Inquiry = {
         id: Date.now().toString(),
         carId: car.id,
@@ -326,12 +330,12 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         carModel: car.model,
         carYear: car.year,
         carPrice: car.price,
-        customerName: formData.customerName,
-        customerEmail: formData.customerEmail,
-        customerPhone: formData.customerPhone,
-        customerMessage: formData.customerMessage,
-        inquiryType: formData.inquiryType,
-        preferredContactMethod: formData.preferredContactMethod,
+        customerName: data.customerName,
+        customerEmail: data.customerEmail,
+        customerPhone: data.customerPhone,
+        customerMessage: data.customerMessage,
+        inquiryType: data.inquiryType as Inquiry['inquiryType'],
+        preferredContactMethod: data.preferredContactMethod as Inquiry['preferredContactMethod'],
         timestamp: new Date().toISOString(),
         status: 'open'
       };
@@ -360,48 +364,56 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               <p className="text-lg font-bold text-blue-600">{formatPrice(car.price)}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
                 <input
                   type="text"
-                  required
-                  value={formData.customerName}
-                  onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  {...register('customerName')}
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                    errors.customerName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your full name"
                 />
+                {errors.customerName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.customerName.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
                 <input
                   type="email"
-                  required
-                  value={formData.customerEmail}
-                  onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  {...register('customerEmail')}
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                    errors.customerEmail ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="your.email@example.com"
                 />
+                {errors.customerEmail && (
+                  <p className="mt-1 text-sm text-red-600">{errors.customerEmail.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
                 <input
                   type="tel"
-                  required
-                  value={formData.customerPhone}
-                  onChange={(e) => setFormData({...formData, customerPhone: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  placeholder="+94 XX XXX XXXX"
+                  {...register('customerPhone')}
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                    errors.customerPhone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="+94 77 123 4567 (or any international number)"
                 />
+                {errors.customerPhone && (
+                  <p className="mt-1 text-sm text-red-600">{errors.customerPhone.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type</label>
                 <select
-                  value={formData.inquiryType}
-                  onChange={(e) => setFormData({...formData, inquiryType: e.target.value as Inquiry['inquiryType']})}
+                  {...register('inquiryType')}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="general">General Information</option>
@@ -415,8 +427,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Contact Method</label>
                 <select
-                  value={formData.preferredContactMethod}
-                  onChange={(e) => setFormData({...formData, preferredContactMethod: e.target.value as Inquiry['preferredContactMethod']})}
+                  {...register('preferredContactMethod')}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="whatsapp">WhatsApp</option>
@@ -426,14 +437,18 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message *</label>
                 <textarea
-                  value={formData.customerMessage}
-                  onChange={(e) => setFormData({...formData, customerMessage: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  {...register('customerMessage')}
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                    errors.customerMessage ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   rows={3}
-                  placeholder="Tell us more about your requirements..."
+                  placeholder="Tell us more about your requirements... (minimum 10 characters)"
                 />
+                {errors.customerMessage && (
+                  <p className="mt-1 text-sm text-red-600">{errors.customerMessage.message}</p>
+                )}
               </div>
 
               <div className="flex space-x-3 pt-4">
@@ -446,9 +461,10 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
-                  Submit Inquiry
+                  {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
                 </button>
               </div>
             </form>
