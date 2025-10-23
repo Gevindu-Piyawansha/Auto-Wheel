@@ -43,6 +43,11 @@ export const inquiryFormSchema = z.object({
       return cleaned.startsWith('+') ? cleaned : '+' + cleaned;
     }),
   
+    customerLocation: z
+      .string()
+      .min(2, 'Location must be at least 2 characters')
+      .max(100, 'Location must be less than 100 characters'),
+  
   customerMessage: z
     .string()
     .min(10, 'Message must be at least 10 characters')

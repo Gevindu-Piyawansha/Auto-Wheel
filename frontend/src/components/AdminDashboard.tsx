@@ -876,7 +876,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Inquiry Details
+                         Customer Details
+                       </th>
+                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         Contact Information
+                       </th>
+                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         Message & Location
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Car Information
@@ -897,8 +903,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <tr key={inquiry.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="text-sm">
-                            <div className="font-medium text-gray-900">Inquiry #{inquiry.id.slice(-6)}</div>
-                            <div className="text-gray-500">WhatsApp contact initiated</div>
+                             <div className="font-medium text-gray-900">{inquiry.customerName}</div>
+                             <div className="text-gray-500 text-xs mt-1">Inquiry #{inquiry.id.slice(-6)}</div>
+                             <div className="flex items-center gap-1 mt-1">
+                               <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                                 {inquiry.inquiryType}
+                               </span>
+                               <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                                 {inquiry.preferredContact}
+                               </span>
+                             </div>
+                           </div>
+                         </td>
+                         <td className="px-6 py-4">
+                           <div className="text-sm space-y-1">
+                             <div className="flex items-center text-gray-600">
+                               <span className="font-medium text-xs text-gray-500 w-16">Email:</span>
+                               <a href={`mailto:${inquiry.customerEmail}`} className="text-blue-600 hover:text-blue-800">
+                                 {inquiry.customerEmail}
+                               </a>
+                             </div>
+                             <div className="flex items-center text-gray-600">
+                               <span className="font-medium text-xs text-gray-500 w-16">Phone:</span>
+                               <a href={`tel:${inquiry.customerPhone}`} className="text-blue-600 hover:text-blue-800">
+                                 {inquiry.customerPhone}
+                               </a>
+                             </div>
+                           </div>
+                         </td>
+                         <td className="px-6 py-4">
+                           <div className="text-sm">
+                             <div className="text-gray-900 mb-2">
+                               <span className="font-medium text-gray-500 text-xs">Message:</span>
+                               <p className="mt-1 text-sm">{inquiry.customerMessage}</p>
+                             </div>
+                             <div className="flex items-center text-gray-600 text-xs">
+                               <span className="font-medium text-gray-500">Location:</span>
+                               <span className="ml-1">{inquiry.customerLocation}</span>
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">

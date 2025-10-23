@@ -16,6 +16,7 @@ export interface Inquiry {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+    customerLocation: string;
   customerMessage: string;
   inquiryType: 'general' | 'price' | 'test_drive' | 'financing' | 'trade_in';
   preferredContactMethod: 'whatsapp' | 'phone' | 'email';
@@ -355,6 +356,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,
+    customerLocation: data.customerLocation,
         customerMessage: data.customerMessage,
         inquiryType: data.inquiryType as Inquiry['inquiryType'],
         preferredContactMethod: data.preferredContactMethod as Inquiry['preferredContactMethod'],
@@ -431,6 +433,21 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                   <p className="mt-1 text-sm text-red-600">{errors.customerPhone.message}</p>
                 )}
               </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Location *</label>
+                  <input
+                    type="text"
+                    {...register('customerLocation')}
+                    className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                      errors.customerLocation ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="e.g., Colombo, Kandy, Galle"
+                  />
+                  {errors.customerLocation && (
+                    <p className="mt-1 text-sm text-red-600">{errors.customerLocation.message}</p>
+                  )}
+                </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type</label>
