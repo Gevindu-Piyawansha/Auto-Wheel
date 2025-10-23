@@ -1,6 +1,7 @@
 import React from 'react';
-import { Car, Settings, LogIn, LogOut, User } from 'lucide-react';
+import { Settings, LogIn, LogOut, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AutoWheelLogo from './AutoWheelLogo';
 
 interface NavigationProps {
   currentView: 'home' | 'admin';
@@ -26,8 +27,15 @@ const Navigation: React.FC<NavigationProps> = ({
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <Car className="h-8 w-8 text-blue-600" />
+            <div 
+              className="flex-shrink-0 flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => onViewChange('home')}
+              title="Go to Home Page"
+            >
+              <AutoWheelLogo 
+                className="h-8 w-8" 
+                onClick={() => onViewChange('home')}
+              />
               <span className="ml-2 text-xl font-bold text-gray-900">Auto-Wheel</span>
             </div>
           </div>

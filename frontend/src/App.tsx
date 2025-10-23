@@ -25,8 +25,15 @@ const SimpleNavigation: React.FC<{
     <nav className="bg-white shadow-lg border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-3">
-            <AutoWheelLogo className="h-10 w-10" />
+          <div 
+            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => onViewChange('home')}
+            title="Go to Home Page"
+          >
+            <AutoWheelLogo 
+              className="h-10 w-10" 
+              onClick={() => onViewChange('home')}
+            />
             <span className="text-xl font-bold text-gray-900">Auto-Wheel</span>
           </div>
           <div className="flex items-center space-x-4">

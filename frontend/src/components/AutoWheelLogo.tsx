@@ -1,9 +1,24 @@
 import React from 'react';
 
-// Auto-Wheel Logo Component - Uses the exact provided logo image
-const AutoWheelLogo: React.FC<{ className?: string }> = ({ className = "h-8 w-8" }) => {
+// Auto-Wheel Logo Component - Uses the exact provided logo image with navigation
+interface AutoWheelLogoProps {
+  className?: string;
+  onClick?: () => void;
+}
+
+const AutoWheelLogo: React.FC<AutoWheelLogoProps> = ({ className = "h-8 w-8", onClick }) => {
+  const handleLogoClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
-    <div className={`${className} flex items-center justify-center`}>
+    <div 
+      className={`${className} flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity`}
+      onClick={handleLogoClick}
+      title="Go to Home Page"
+    >
       <img 
         src="/auto-wheel-logo.jpg" 
         alt="Auto-Wheel Logo" 
