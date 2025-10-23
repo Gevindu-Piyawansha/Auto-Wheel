@@ -20,6 +20,7 @@ public class AutoWheelDbContext : DbContext
         {
             entity.Property(p => p.Make).HasMaxLength(100);
             entity.Property(p => p.Model).HasMaxLength(100);
+            entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
             entity.Property(p => p.EngineCC).HasMaxLength(20);
             entity.Property(p => p.FuelType).HasMaxLength(30);
             entity.Property(p => p.Transmission).HasMaxLength(30);
@@ -39,6 +40,7 @@ public class AutoWheelDbContext : DbContext
             entity.Property(i => i.CustomerMessage).HasMaxLength(2000);
             entity.Property(i => i.InquiryType).HasMaxLength(50);
             entity.Property(i => i.PreferredContactMethod).HasMaxLength(50);
+            entity.Property(i => i.CarPrice).HasColumnType("decimal(18,2)");
             entity.Property(i => i.Status).HasMaxLength(50);
         });
     }
