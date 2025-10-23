@@ -22,9 +22,15 @@ const SimpleNavigation: React.FC<{
   };
 
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <>
+      {/* Top Banner */}
+      <div className="bg-blue-600 text-white text-center py-2 text-sm">
+        🇯🇵 Direct Import from Japan to Sri Lanka 🇱🇰 | Free Delivery | Best Prices | Leasing Available
+      </div>
+      
+      <nav className="bg-white shadow-lg border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
           <div 
             className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => onViewChange('home')}
@@ -83,6 +89,7 @@ const SimpleNavigation: React.FC<{
         </div>
       </div>
     </nav>
+    </>
   );
 };
 
@@ -105,68 +112,98 @@ const AppContent: React.FC = () => {
       year: 2022,
       price: 8500000,
       mileage: 25000,
+      engineCC: '2000cc',
       fuelType: 'Hybrid',
       transmission: 'Automatic',
+      vehicleGrade: 'G',
+      category: 'Sedan',
       location: 'Colombo',
       image: getCarImage('Toyota', 'Camry'),
       features: ['Leather Seats', 'Navigation', 'Backup Camera', 'Bluetooth'],
-      description: 'Excellent condition Toyota Camry with low mileage and premium features.'
+      description: 'Excellent condition Toyota Camry with low mileage and premium features.',
+      isHotDeal: false,
+      views: 15,
+      rating: 5
     },
     {
       id: 2,
-      make: 'BMW',
-      model: 'X5',
-      year: 2021,
-      price: 19500000,
-      mileage: 35000,
+      make: 'Suzuki',
+      model: 'Alto',
+      year: 2025,
+      price: 6800000,
+      mileage: 2000,
+      engineCC: '660cc',
       fuelType: 'Petrol',
       transmission: 'Automatic',
-      location: 'Kandy',
-      image: getCarImage('BMW', 'X5'),
-      features: ['All-Wheel Drive', 'Premium Sound', 'Sunroof', 'Heated Seats'],
-      description: 'Luxury BMW X5 with premium features and excellent performance.'
+      vehicleGrade: 'L',
+      category: 'Hatchback',
+      location: 'Colombo',
+      image: getCarImage('Suzuki', 'Alto'),
+      features: ['Air Conditioning', 'Power Steering', 'ABS', 'Airbags'],
+      description: 'SUZUKI ALTO MODEL CODE- HA37S GRADE- L YEAR - 2025 Manufacture 2025 ODOMETER - 2000 KM ENGINE CC- 660 TRANSMISSION - FAT COLOR - LIGHT BLUE FUEL -PETROL',
+      isHotDeal: true,
+      views: 11,
+      rating: 3
     },
     {
       id: 3,
-      make: 'Tesla',
-      model: 'Model 3',
-      year: 2023,
-      price: 12600000,
-      mileage: 8000,
-      fuelType: 'Electric',
-      transmission: 'Automatic',
-      location: 'Galle',
-      image: getCarImage('Tesla', 'Model 3'),
-      features: ['Autopilot', 'Supercharging', 'Premium Interior', 'Over-the-Air Updates'],
-      description: 'Latest Tesla Model 3 with cutting-edge technology and minimal mileage.'
+      make: 'Honda',
+      model: 'Vezel',
+      year: 2024,
+      price: 16700000,
+      mileage: 5000,
+      engineCC: '1500cc',
+      fuelType: 'Hybrid',
+      transmission: 'CVT',
+      vehicleGrade: 'G',
+      category: 'SUV',
+      location: 'Kandy',
+      image: getCarImage('Honda', 'Vezel'),
+      features: ['Honda Sensing', 'LED Headlights', 'Touchscreen', 'Backup Camera'],
+      description: 'Premium Honda Vezel with hybrid technology and modern features directly imported from Japan.',
+      isHotDeal: true,
+      views: 8,
+      rating: 5
     },
     {
       id: 4,
-      make: 'Mercedes',
-      model: 'C-Class',
-      year: 2023,
-      price: 16200000,
-      mileage: 15000,
-      fuelType: 'Hybrid',
-      transmission: 'Automatic',
-      location: 'Negombo',
-      image: getCarImage('Mercedes', 'C-Class'),
-      features: ['AMG Line', 'MBUX System', 'LED Headlights', 'Wireless Charging'],
-      description: 'Sophisticated Mercedes C-Class with modern luxury and efficiency.'
+      make: 'Toyota',
+      model: 'Raize',
+      year: 2024,
+      price: 12000000,
+      mileage: 3000,
+      engineCC: '1000cc',
+      fuelType: 'Petrol',
+      transmission: 'CVT',
+      vehicleGrade: 'G',
+      category: 'SUV',
+      location: 'Galle',
+      image: getCarImage('Toyota', 'Raize'),
+      features: ['Smart Assist', 'Keyless Entry', 'Push Start', 'Climate Control'],
+      description: 'Compact SUV Toyota Raize with excellent fuel efficiency and modern safety features.',
+      isHotDeal: false,
+      views: 12,
+      rating: 4
     },
     {
       id: 5,
-      make: 'Audi',
-      model: 'A4',
-      year: 2022,
-      price: 14250000,
-      mileage: 22000,
+      make: 'Nissan',
+      model: 'Aura',
+      year: 2024,
+      price: 14000000,
+      mileage: 4500,
+      engineCC: '1200cc',
       fuelType: 'Petrol',
-      transmission: 'Automatic',
-      location: 'Matara',
-      image: getCarImage('Audi', 'A4'),
-      features: ['Quattro AWD', 'Virtual Cockpit', 'Bang & Olufsen Sound', 'Adaptive Cruise'],
-      description: 'Premium Audi A4 with quattro all-wheel drive and advanced technology.'
+      transmission: 'CVT',
+      vehicleGrade: 'X',
+      category: 'Hatchback',
+      location: 'Negombo',
+      image: getCarImage('Nissan', 'Aura'),
+      features: ['Intelligent Key', 'Around View Monitor', 'Nissan Connect', 'LED Lights'],
+      description: 'Modern Nissan Aura with advanced technology and premium interior features.',
+      isHotDeal: true,
+      views: 6,
+      rating: 4
     }
   ]);
 

@@ -7,13 +7,21 @@ export interface Car {
   model: string;
   year: number;
   price: number;
+  tax?: number;
+  totalPrice?: number;
   mileage: number;
+  engineCC: string;
   fuelType: string;
   transmission: string;
+  vehicleGrade: string;
+  category: string;
   location: string;
   image: string;
   features: string[];
   description: string;
+  isHotDeal?: boolean;
+  views?: number;
+  rating?: number;
 }
 
 interface CarListingProps {
@@ -28,7 +36,12 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     maxPrice: '',
     make: '',
     year: '',
-    fuelType: ''
+    fuelType: '',
+    category: '',
+    engineCC: '',
+    vehicleGrade: '',
+    transmission: '',
+    isHotDeal: false
   });
 
 
@@ -37,17 +50,26 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     const matchesSearch = (
       car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.location.toLowerCase().includes(searchTerm.toLowerCase())
+      car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      car.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      car.engineCC?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     
     const matchesMake = filters.make === '' || car.make === filters.make;
     const matchesFuelType = filters.fuelType === '' || car.fuelType === filters.fuelType;
+    const matchesCategory = filters.category === '' || car.category === filters.category;
+    const matchesEngineCC = filters.engineCC === '' || car.engineCC === filters.engineCC;
+    const matchesVehicleGrade = filters.vehicleGrade === '' || car.vehicleGrade === filters.vehicleGrade;
+    const matchesTransmission = filters.transmission === '' || car.transmission === filters.transmission;
+    const matchesHotDeal = !filters.isHotDeal || car.isHotDeal;
     
     const minPrice = parseInt(filters.minPrice) || 0;
     const maxPrice = parseInt(filters.maxPrice) || Infinity;
     const matchesPrice = car.price >= minPrice && car.price <= maxPrice;
     
-    return matchesSearch && matchesMake && matchesFuelType && matchesPrice;
+    return matchesSearch && matchesMake && matchesFuelType && matchesCategory && 
+           matchesEngineCC && matchesVehicleGrade && matchesTransmission && 
+           matchesHotDeal && matchesPrice;
   });
 
   const formatPrice = (price: number) => {
@@ -59,60 +81,85 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   };
 
   const CarCard: React.FC<{ car: Car }> = ({ car }) => (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-200">
       <div className="relative">
         <img 
           src={car.image} 
           alt={`${car.make} ${car.model}`}
           className="w-full h-48 object-cover"
         />
+        {car.isHotDeal && (
+          <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
+            🔥 HOT DEAL
+          </div>
+        )}
         <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">
           {formatPrice(car.price)}
+        </div>
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+          {car.views || 0} views
         </div>
       </div>
       
       <div className="p-4">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {car.year} {car.make} {car.model}
-        </h3>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
-          <div className="flex items-center">
-            <Settings className="w-4 h-4 mr-1" />
-            {car.mileage.toLocaleString()} km
-          </div>
-          <div className="flex items-center">
-            <Fuel className="w-4 h-4 mr-1" />
-            {car.fuelType}
-          </div>
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            {car.year}
-          </div>
-          <div className="flex items-center">
-            <MapPin className="w-4 h-4 mr-1" />
-            {car.location}
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-bold text-gray-900">
+            {car.make.toUpperCase()} {car.model.toUpperCase()}
+          </h3>
+          <div className="flex items-center text-yellow-400 text-sm">
+            {"⭐".repeat(car.rating || 5)}
           </div>
         </div>
         
-        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+        <div className="text-sm text-gray-600 mb-1">
+          {car.category}
+        </div>
+        
+        <div className="grid grid-cols-2 gap-1 text-xs text-gray-600 mb-3">
+          <div><span className="font-medium">Year:</span> {car.year}</div>
+          <div><span className="font-medium">Mileage:</span> {car.mileage?.toLocaleString() || 0}km</div>
+          <div><span className="font-medium">Fuel:</span> {car.fuelType}</div>
+          <div><span className="font-medium">Grade:</span> {car.vehicleGrade}</div>
+          <div><span className="font-medium">Transmission:</span> {car.transmission}</div>
+          <div><span className="font-medium">Engine:</span> {car.engineCC}</div>
+        </div>
+        
+        <p className="text-gray-700 text-xs mb-3 line-clamp-2">
           {car.description}
         </p>
         
-        <div className="flex flex-wrap gap-1 mb-3">
-          {car.features.slice(0, 3).map((feature, index) => (
-            <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-              {feature}
-            </span>
-          ))}
-          {car.features.length > 3 && (
-            <span className="text-gray-500 text-xs">+{car.features.length - 3} more</span>
-          )}
+        <div className="mb-3">
+          <div className="text-xs font-medium text-gray-700 mb-2">Car Features:</div>
+          <div className="flex flex-wrap gap-1">
+            {car.features.slice(0, 6).map((feature, index) => (
+              <span key={index} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-200">
+                {feature}
+              </span>
+            ))}
+            {car.features.length > 6 && (
+              <span className="text-blue-600 text-xs font-medium">+{car.features.length - 6} more features</span>
+            )}
+          </div>
         </div>
         
-        <button className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300">
-          View Details
-        </button>
+        <div className="border-t pt-3 mt-3">
+          <div className="text-center mb-2">
+            <div className="text-lg font-bold text-gray-900">
+              Base Price: {formatPrice(car.price)}
+            </div>
+            {car.tax && car.tax > 0 && (
+              <div className="text-sm text-gray-600">
+                Total Price: {formatPrice(car.price + car.tax)}
+              </div>
+            )}
+          </div>
+          <div className="text-center text-xs text-green-600 mb-2">
+            💰 Leasing Available | 🚚 Free Delivery
+          </div>
+          <button className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-sm font-medium">
+            📞 Contact Us About This Car
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -188,6 +235,70 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     <option value="Hybrid">Hybrid</option>
                     <option value="Electric">Electric</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select 
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.category}
+                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                  >
+                    <option value="">All Categories</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Wagon">Wagon</option>
+                    <option value="Coupe">Coupe</option>
+                    <option value="Convertible">Convertible</option>
+                    <option value="Van">Van</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Engine CC</label>
+                  <select 
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.engineCC}
+                    onChange={(e) => setFilters({...filters, engineCC: e.target.value})}
+                  >
+                    <option value="">All Engines</option>
+                    <option value="660cc">660cc</option>
+                    <option value="1000cc">1000cc</option>
+                    <option value="1200cc">1200cc</option>
+                    <option value="1500cc">1500cc</option>
+                    <option value="1800cc">1800cc</option>
+                    <option value="2000cc">2000cc</option>
+                    <option value="2500cc">2500cc+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Grade</label>
+                  <select 
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.vehicleGrade}
+                    onChange={(e) => setFilters({...filters, vehicleGrade: e.target.value})}
+                  >
+                    <option value="">All Grades</option>
+                    <option value="L">L Grade</option>
+                    <option value="G">G Grade</option>
+                    <option value="X">X Grade</option>
+                    <option value="S">S Grade</option>
+                    <option value="Z">Z Grade</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={filters.isHotDeal}
+                      onChange={(e) => setFilters({...filters, isHotDeal: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">🔥 Hot Deals Only</span>
+                  </label>
                 </div>
                 
                 <div>
@@ -284,7 +395,10 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
                 <button 
-                  onClick={() => setFilters({minPrice: '', maxPrice: '', make: '', year: '', fuelType: ''})}
+                  onClick={() => setFilters({
+                    minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
+                    category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
+                  })}
                   className="mt-4 text-blue-600 hover:text-blue-700"
                 >
                   Clear filters
