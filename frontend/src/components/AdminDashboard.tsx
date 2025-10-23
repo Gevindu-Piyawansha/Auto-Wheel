@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Car } from './CarListing';
-import { Plus, Edit, Trash2, Save, X, MessageSquare, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, MessageSquare, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminDashboardProps {
@@ -23,6 +23,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'cars' | 'inquiries'>('cars');
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [formData, setFormData] = useState<Partial<Car>>({
     make: '',
     model: '',
@@ -43,22 +44,67 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     rating: 5
   });
 
-  // Load inquiries from localStorage on component mount
+  // Load inquiries from localStorage on component mount and when refreshKey changes
   useEffect(() => {
-    const savedInquiries = localStorage.getItem('auto_wheel_inquiries');
-    if (savedInquiries) {
-      try {
-        setInquiries(JSON.parse(savedInquiries));
-      } catch (error) {
-        console.error('Error loading inquiries:', error);
+    const loadInquiries = () => {
+      const savedInquiries = localStorage.getItem('carInquiries');
+      console.log('AdminDashboard - Loading inquiries from localStorage:', savedInquiries);
+      if (savedInquiries) {
+        try {
+          const parsed = JSON.parse(savedInquiries);
+          console.log('AdminDashboard - Parsed inquiries:', parsed.length, 'items');
+          console.log('AdminDashboard - Inquiry data:', parsed);
+          setInquiries(parsed);
+        } catch (error) {
+          console.error('Error loading inquiries:', error);
+          setInquiries([]);
+        }
+      } else {
+        console.log('AdminDashboard - No inquiries found in localStorage');
+        setInquiries([]);
+      }
+    };
+
+    loadInquiries();
+
+    // Listen for storage events (when localStorage is updated from another tab/component)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'carInquiries') {
+        console.log('AdminDashboard - Storage event detected, reloading inquiries');
+        loadInquiries();
+      }
+    };
+
+    // Listen for custom inquiriesUpdated event
+    const handleInquiriesUpdated = () => {
+      console.log('AdminDashboard - inquiriesUpdated event detected, reloading');
+      loadInquiries();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('inquiriesUpdated', handleInquiriesUpdated);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('inquiriesUpdated', handleInquiriesUpdated);
+    };
+  }, [refreshKey]);
+
+  // Also reload inquiries when switching to inquiries tab
+  useEffect(() => {
+    if (activeTab === 'inquiries') {
+      const savedInquiries = localStorage.getItem('carInquiries');
+      console.log('AdminDashboard - Switched to inquiries tab, reloading:', savedInquiries);
+      if (savedInquiries) {
+        try {
+          const parsed = JSON.parse(savedInquiries);
+          setInquiries(parsed);
+        } catch (error) {
+          console.error('Error loading inquiries on tab switch:', error);
+        }
       }
     }
-  }, []);
-
-  // Save inquiries to localStorage whenever inquiries change
-  useEffect(() => {
-    localStorage.setItem('auto_wheel_inquiries', JSON.stringify(inquiries));
-  }, [inquiries]);
+  }, [activeTab]);
 
   // Check admin access after all hooks are called
   if (!user || !isAdmin()) {
@@ -120,13 +166,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const updateInquiryStatus = (inquiryId: string, status: string) => {
-    setInquiries(prev => prev.map(inquiry => 
-      inquiry.id === inquiryId ? { ...inquiry, status } : inquiry
-    ));
+    setInquiries(prev => {
+      const updated = prev.map(inquiry => 
+        inquiry.id === inquiryId ? { ...inquiry, status } : inquiry
+      );
+      // Save to localStorage after updating
+      localStorage.setItem('carInquiries', JSON.stringify(updated));
+      console.log('Updated inquiry status and saved to localStorage');
+      return updated;
+    });
   };
 
   const deleteInquiry = (inquiryId: string) => {
-    setInquiries(prev => prev.filter(inquiry => inquiry.id !== inquiryId));
+    setInquiries(prev => {
+      const updated = prev.filter(inquiry => inquiry.id !== inquiryId);
+      // Save to localStorage after deleting
+      localStorage.setItem('carInquiries', JSON.stringify(updated));
+      console.log('Deleted inquiry and saved to localStorage');
+      return updated;
+    });
   };
 
   return (
@@ -790,8 +848,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <MessageSquare className="w-5 h-5 mr-2" />
                   Customer Inquiries ({inquiries.length})
                 </h2>
-                <div className="text-sm text-gray-500">
-                  Total inquiries received
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setRefreshKey(prev => prev + 1)}
+                    className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                    title="Refresh inquiries"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    <span className="text-sm font-medium">Refresh</span>
+                  </button>
+                  <div className="text-sm text-gray-500">
+                    Total inquiries received
+                  </div>
                 </div>
               </div>
             </div>

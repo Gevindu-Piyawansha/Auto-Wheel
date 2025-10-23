@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Grid, List, X, MessageCircle } from 'lucide-react';
 
 export interface Inquiry {
@@ -67,6 +67,19 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     isHotDeal: false
   });
 
+  // Load inquiries from localStorage on component mount
+  useEffect(() => {
+    const savedInquiries = localStorage.getItem('carInquiries');
+    if (savedInquiries) {
+      try {
+        const parsedInquiries = JSON.parse(savedInquiries);
+        setInquiries(parsedInquiries);
+      } catch (error) {
+        console.error('Error loading inquiries from localStorage:', error);
+      }
+    }
+  }, []);
+
   const filteredCars = cars.filter(car => {
     const matchesSearch = (
       car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,8 +120,29 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   };
 
   const handleInquirySubmit = (inquiry: Inquiry) => {
+    console.log('Submitting inquiry:', inquiry);
+    
     // Save inquiry to local state
-    setInquiries(prev => [...prev, inquiry]);
+    const updatedInquiries = [...inquiries, inquiry];
+    setInquiries(updatedInquiries);
+
+    // Save to localStorage for persistence
+    try {
+      localStorage.setItem('carInquiries', JSON.stringify(updatedInquiries));
+      console.log('Saved to localStorage. Total inquiries:', updatedInquiries.length);
+      
+      // Verify it was saved
+      const saved = localStorage.getItem('carInquiries');
+      console.log('Verification - localStorage has:', saved ? JSON.parse(saved).length : 0, 'inquiries');
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event('inquiriesUpdated'));
+      console.log('Dispatched inquiriesUpdated event');
+    } catch (error) {
+      console.error('Error saving inquiry to localStorage:', error);
+      alert('⚠️ Error saving inquiry. Please try again.');
+      return;
+    }
 
     // Create WhatsApp message based on inquiry details
     let message = `Hi! I'm interested in the ${inquiry.carMake} ${inquiry.carModel} (${inquiry.carYear}) priced at ${formatPrice(inquiry.carPrice)}.\n\n`;
@@ -127,8 +161,8 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     // Open WhatsApp
     window.open(whatsappUrl, '_blank');
 
-    // Log inquiry for admin
-    console.log('New inquiry created:', inquiry);
+    // Show success message
+    alert('✅ Inquiry submitted successfully! Your inquiry has been saved and will be reviewed by our team.');
   };
 
   const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({ car, onClose }) => (
