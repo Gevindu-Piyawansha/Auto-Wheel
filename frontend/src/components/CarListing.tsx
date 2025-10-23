@@ -1,5 +1,24 @@
 import React, { useState } from 'react';
-import { Search, Filter, Grid, List, MapPin, Calendar, Fuel, Settings } from 'lucide-react';
+import { Search, Filter, Grid, List, X, MessageCircle } from 'lucide-react';
+
+export interface Inquiry {
+  id: string;
+  carId: number;
+  carMake: string;
+  carModel: string;
+  carYear: number;
+  carPrice: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerMessage: string;
+  inquiryType: 'general' | 'price' | 'test_drive' | 'financing' | 'trade_in';
+  preferredContactMethod: 'whatsapp' | 'phone' | 'email';
+  timestamp: string;
+  status: 'open' | 'contacted' | 'in_progress' | 'solved' | 'closed';
+  adminNotes?: string;
+  followUpDate?: string;
+}
 
 export interface Car {
   id: number;
@@ -31,6 +50,10 @@ interface CarListingProps {
 const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [inquiryCar, setInquiryCar] = useState<Car | null>(null);
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
@@ -44,8 +67,6 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     isHotDeal: false
   });
 
-
-
   const filteredCars = cars.filter(car => {
     const matchesSearch = (
       car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,7 +75,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
       car.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.engineCC?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     const matchesMake = filters.make === '' || car.make === filters.make;
     const matchesFuelType = filters.fuelType === '' || car.fuelType === filters.fuelType;
     const matchesCategory = filters.category === '' || car.category === filters.category;
@@ -62,13 +83,13 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     const matchesVehicleGrade = filters.vehicleGrade === '' || car.vehicleGrade === filters.vehicleGrade;
     const matchesTransmission = filters.transmission === '' || car.transmission === filters.transmission;
     const matchesHotDeal = !filters.isHotDeal || car.isHotDeal;
-    
+
     const minPrice = parseInt(filters.minPrice) || 0;
     const maxPrice = parseInt(filters.maxPrice) || Infinity;
     const matchesPrice = car.price >= minPrice && car.price <= maxPrice;
-    
-    return matchesSearch && matchesMake && matchesFuelType && matchesCategory && 
-           matchesEngineCC && matchesVehicleGrade && matchesTransmission && 
+
+    return matchesSearch && matchesMake && matchesFuelType && matchesCategory &&
+           matchesEngineCC && matchesVehicleGrade && matchesTransmission &&
            matchesHotDeal && matchesPrice;
   });
 
@@ -80,11 +101,334 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     }).format(price);
   };
 
+  const handleInquiry = (car: Car) => {
+    setInquiryCar(car);
+    setShowInquiryForm(true);
+  };
+
+  const handleInquirySubmit = (inquiry: Inquiry) => {
+    // Save inquiry to local state
+    setInquiries(prev => [...prev, inquiry]);
+
+    // Create WhatsApp message based on inquiry details
+    let message = `Hi! I'm interested in the ${inquiry.carMake} ${inquiry.carModel} (${inquiry.carYear}) priced at ${formatPrice(inquiry.carPrice)}.\n\n`;
+    message += `Customer Details:\n`;
+    message += `Name: ${inquiry.customerName}\n`;
+    message += `Email: ${inquiry.customerEmail}\n`;
+    message += `Phone: ${inquiry.customerPhone}\n`;
+    message += `Inquiry Type: ${inquiry.inquiryType.replace('_', ' ').toUpperCase()}\n`;
+    if (inquiry.customerMessage) {
+      message += `\nMessage: ${inquiry.customerMessage}\n`;
+    }
+    message += `\nPlease contact me via ${inquiry.preferredContactMethod.toUpperCase()}.`;
+
+    const whatsappUrl = `https://wa.me/94777444976?text=${encodeURIComponent(message)}`;
+
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
+
+    // Log inquiry for admin
+    console.log('New inquiry created:', inquiry);
+  };
+
+  const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({ car, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {car.make.toUpperCase()} {car.model.toUpperCase()} ({car.year})
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Car Image */}
+            <div>
+              <img
+                src={car.image}
+                alt={`${car.make} ${car.model}`}
+                className="w-full h-96 object-cover rounded-lg shadow-md"
+              />
+              {car.isHotDeal && (
+                <div className="mt-2 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold inline-block">
+                  🔥 HOT DEAL
+                </div>
+              )}
+            </div>
+
+            {/* Car Details */}
+            <div className="space-y-6">
+              {/* Price Information */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Price Information</h3>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span>Base Price:</span>
+                    <span className="font-bold text-xl">{formatPrice(car.price)}</span>
+                  </div>
+                  {car.tax && car.tax > 0 && (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Registration Tax:</span>
+                        <span>{formatPrice(car.tax)}</span>
+                      </div>
+                      <div className="flex justify-between border-t pt-1">
+                        <span className="font-semibold">Total Price:</span>
+                        <span className="font-bold text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Basic Specifications */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3">Specifications</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-gray-600">Make:</span>
+                    <p className="font-medium">{car.make}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Model:</span>
+                    <p className="font-medium">{car.model}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Year:</span>
+                    <p className="font-medium">{car.year}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Category:</span>
+                    <p className="font-medium">{car.category}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Mileage:</span>
+                    <p className="font-medium">{car.mileage?.toLocaleString() || 0} km</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Fuel Type:</span>
+                    <p className="font-medium">{car.fuelType}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Transmission:</span>
+                    <p className="font-medium">{car.transmission}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Engine:</span>
+                    <p className="font-medium">{car.engineCC}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Grade:</span>
+                    <p className="font-medium">{car.vehicleGrade}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Rating:</span>
+                    <p className="font-medium">{"⭐".repeat(car.rating || 5)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-700">{car.description}</p>
+              </div>
+
+              {/* Features */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3">Features</h3>
+                <div className="flex flex-wrap gap-2">
+                  {car.features.map((feature, index) => (
+                    <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleInquiry(car)}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center space-x-2 font-medium"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Make an Inquiry</span>
+                </button>
+                <div className="text-center text-sm text-gray-600">
+                  💰 Leasing Available | 🚚 Free Delivery | 📞 Call for Best Price
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const InquiryFormModal: React.FC<{ car: Car; onClose: () => void; onSubmit: (inquiry: Inquiry) => void }> = ({ car, onClose, onSubmit }) => {
+    const [formData, setFormData] = useState({
+      customerName: '',
+      customerEmail: '',
+      customerPhone: '',
+      customerMessage: '',
+      inquiryType: 'general' as Inquiry['inquiryType'],
+      preferredContactMethod: 'whatsapp' as Inquiry['preferredContactMethod']
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+
+      const inquiry: Inquiry = {
+        id: Date.now().toString(),
+        carId: car.id,
+        carMake: car.make,
+        carModel: car.model,
+        carYear: car.year,
+        carPrice: car.price,
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone,
+        customerMessage: formData.customerMessage,
+        inquiryType: formData.inquiryType,
+        preferredContactMethod: formData.preferredContactMethod,
+        timestamp: new Date().toISOString(),
+        status: 'open'
+      };
+
+      onSubmit(inquiry);
+      onClose();
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Make an Inquiry</h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Car Info Summary */}
+            <div className="bg-gray-50 p-3 rounded-lg mb-4">
+              <h3 className="font-semibold text-gray-900">{car.make} {car.model} ({car.year})</h3>
+              <p className="text-lg font-bold text-blue-600">{formatPrice(car.price)}</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({...formData, customerName: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.customerEmail}
+                  onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.customerPhone}
+                  onChange={(e) => setFormData({...formData, customerPhone: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  placeholder="+94 XX XXX XXXX"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type</label>
+                <select
+                  value={formData.inquiryType}
+                  onChange={(e) => setFormData({...formData, inquiryType: e.target.value as Inquiry['inquiryType']})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="general">General Information</option>
+                  <option value="price">Price Inquiry</option>
+                  <option value="test_drive">Test Drive Request</option>
+                  <option value="financing">Financing Options</option>
+                  <option value="trade_in">Trade-in Evaluation</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Contact Method</label>
+                <select
+                  value={formData.preferredContactMethod}
+                  onChange={(e) => setFormData({...formData, preferredContactMethod: e.target.value as Inquiry['preferredContactMethod']})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="phone">Phone Call</option>
+                  <option value="email">Email</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message</label>
+                <textarea
+                  value={formData.customerMessage}
+                  onChange={(e) => setFormData({...formData, customerMessage: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="Tell us more about your requirements..."
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Submit Inquiry
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const CarCard: React.FC<{ car: Car }> = ({ car }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-200">
       <div className="relative">
-        <img 
-          src={car.image} 
+        <img
+          src={car.image}
           alt={`${car.make} ${car.model}`}
           className="w-full h-48 object-cover"
         />
@@ -96,11 +440,8 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">
           {formatPrice(car.price)}
         </div>
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-          {car.views || 0} views
-        </div>
       </div>
-      
+
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-bold text-gray-900">
@@ -110,55 +451,42 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
             {"⭐".repeat(car.rating || 5)}
           </div>
         </div>
-        
-        <div className="text-sm text-gray-600 mb-1">
-          {car.category}
+
+        <div className="text-sm text-gray-600 mb-2">
+          {car.year} • {car.category} • {car.fuelType}
         </div>
-        
-        <div className="grid grid-cols-2 gap-1 text-xs text-gray-600 mb-3">
-          <div><span className="font-medium">Year:</span> {car.year}</div>
-          <div><span className="font-medium">Mileage:</span> {car.mileage?.toLocaleString() || 0}km</div>
-          <div><span className="font-medium">Fuel:</span> {car.fuelType}</div>
-          <div><span className="font-medium">Grade:</span> {car.vehicleGrade}</div>
-          <div><span className="font-medium">Transmission:</span> {car.transmission}</div>
-          <div><span className="font-medium">Engine:</span> {car.engineCC}</div>
-        </div>
-        
-        <p className="text-gray-700 text-xs mb-3 line-clamp-2">
+
+        <div className="text-gray-700 text-sm mb-3 line-clamp-2">
           {car.description}
-        </p>
-        
-        <div className="mb-3">
-          <div className="text-xs font-medium text-gray-700 mb-2">Car Features:</div>
-          <div className="flex flex-wrap gap-1">
-            {car.features.slice(0, 6).map((feature, index) => (
-              <span key={index} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-200">
-                {feature}
-              </span>
-            ))}
-            {car.features.length > 6 && (
-              <span className="text-blue-600 text-xs font-medium">+{car.features.length - 6} more features</span>
-            )}
-          </div>
         </div>
-        
+
         <div className="border-t pt-3 mt-3">
-          <div className="text-center mb-2">
+          <div className="text-center mb-3">
             <div className="text-lg font-bold text-gray-900">
-              Base Price: {formatPrice(car.price)}
+              {formatPrice(car.price)}
             </div>
             {car.tax && car.tax > 0 && (
               <div className="text-sm text-gray-600">
-                Total Price: {formatPrice(car.price + car.tax)}
+                Total: {formatPrice(car.price + car.tax)}
               </div>
             )}
           </div>
-          <div className="text-center text-xs text-green-600 mb-2">
-            💰 Leasing Available | 🚚 Free Delivery
+
+          <div className="space-y-2">
+            <button
+              onClick={() => setSelectedCar(car)}
+              className="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors duration-300 text-sm font-medium"
+            >
+              👁️ View Details
+            </button>
+            <button
+              onClick={() => handleInquiry(car)}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-sm font-medium flex items-center justify-center space-x-1"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>Make an Inquiry</span>
+            </button>
           </div>
-          <button className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-sm font-medium">
-            📞 Contact Us About This Car
-          </button>
         </div>
       </div>
     </div>
@@ -207,25 +535,33 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 <Filter className="w-5 h-5 mr-2 text-gray-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
-                  <select 
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     value={filters.make}
                     onChange={(e) => setFilters({...filters, make: e.target.value})}
                   >
                     <option value="">All Makes</option>
                     <option value="Toyota">Toyota</option>
-                    <option value="BMW">BMW</option>
-                    <option value="Tesla">Tesla</option>
+                    <option value="Honda">Honda</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="Suzuki">Suzuki</option>
+                    <option value="Mazda">Mazda</option>
+                    <option value="Mitsubishi">Mitsubishi</option>
+                    <option value="Subaru">Subaru</option>
+                    <option value="Daihatsu">Daihatsu</option>
+                    <option value="Lexus">Lexus</option>
+                    <option value="Infiniti">Infiniti</option>
+                    <option value="Acura">Acura</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fuel Type</label>
-                  <select 
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     value={filters.fuelType}
                     onChange={(e) => setFilters({...filters, fuelType: e.target.value})}
@@ -234,12 +570,13 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     <option value="Petrol">Petrol</option>
                     <option value="Hybrid">Hybrid</option>
                     <option value="Electric">Electric</option>
+                    <option value="Diesel">Diesel</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select 
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     value={filters.category}
                     onChange={(e) => setFilters({...filters, category: e.target.value})}
@@ -257,7 +594,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Engine CC</label>
-                  <select 
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     value={filters.engineCC}
                     onChange={(e) => setFilters({...filters, engineCC: e.target.value})}
@@ -275,7 +612,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Grade</label>
-                  <select 
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     value={filters.vehicleGrade}
                     onChange={(e) => setFilters({...filters, vehicleGrade: e.target.value})}
@@ -300,10 +637,10 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     <span className="text-sm font-medium text-gray-700">🔥 Hot Deals Only</span>
                   </label>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (LKR)</label>
-                  <input 
+                  <input
                     type="number"
                     min="0"
                     step="100000"
@@ -316,10 +653,10 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     }}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (LKR)</label>
-                  <input 
+                  <input
                     type="number"
                     min="0"
                     step="100000"
@@ -332,7 +669,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     }}
                   />
                 </div>
-                
+
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Quick Price Ranges</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -362,7 +699,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     </button>
                   </div>
                 </div>
-                
+
                 <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">
                   Apply Filters
                 </button>
@@ -381,20 +718,20 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 <option>Sort by: Mileage (Lowest)</option>
               </select>
             </div>
-            
-            <div className={viewMode === 'grid' ? 
-              "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : 
+
+            <div className={viewMode === 'grid' ?
+              "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
               "space-y-4"
             }>
               {filteredCars.map(car => (
                 <CarCard key={car.id} car={car} />
               ))}
             </div>
-            
+
             {filteredCars.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
-                <button 
+                <button
                   onClick={() => setFilters({
                     minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
                     category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
@@ -408,6 +745,22 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {selectedCar && (
+        <CarDetailModal car={selectedCar} onClose={() => setSelectedCar(null)} />
+      )}
+
+      {showInquiryForm && inquiryCar && (
+        <InquiryFormModal
+          car={inquiryCar}
+          onClose={() => {
+            setShowInquiryForm(false);
+            setInquiryCar(null);
+          }}
+          onSubmit={handleInquirySubmit}
+        />
+      )}
     </div>
   );
 };
