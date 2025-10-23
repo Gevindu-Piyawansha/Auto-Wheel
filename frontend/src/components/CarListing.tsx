@@ -34,18 +34,26 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
 
   const filteredCars = cars.filter(car => {
-    return (
+    const matchesSearch = (
       car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.model.toLowerCase().includes(searchTerm.toLowerCase())
-    ) && 
-    (filters.make === '' || car.make === filters.make) &&
-    (filters.fuelType === '' || car.fuelType === filters.fuelType);
+      car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      car.location.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const matchesMake = filters.make === '' || car.make === filters.make;
+    const matchesFuelType = filters.fuelType === '' || car.fuelType === filters.fuelType;
+    
+    const minPrice = parseInt(filters.minPrice) || 0;
+    const maxPrice = parseInt(filters.maxPrice) || Infinity;
+    const matchesPrice = car.price >= minPrice && car.price <= maxPrice;
+    
+    return matchesSearch && matchesMake && matchesFuelType && matchesPrice;
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('no-NO', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'NOK',
+      currency: 'LKR',
       minimumFractionDigits: 0
     }).format(price);
   };
@@ -183,25 +191,65 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (LKR)</label>
                   <input 
                     type="number"
+                    min="0"
+                    step="100000"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="0"
+                    placeholder="1,000,000"
                     value={filters.minPrice}
-                    onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                    onChange={(e) => {
+                      const value = Math.max(0, parseInt(e.target.value) || 0);
+                      setFilters({...filters, minPrice: value.toString()});
+                    }}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (LKR)</label>
                   <input 
                     type="number"
+                    min="0"
+                    step="100000"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="1000000"
+                    placeholder="50,000,000"
                     value={filters.maxPrice}
-                    onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                    onChange={(e) => {
+                      const value = Math.max(0, parseInt(e.target.value) || 0);
+                      setFilters({...filters, maxPrice: value.toString()});
+                    }}
                   />
+                </div>
+                
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quick Price Ranges</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setFilters({...filters, minPrice: '0', maxPrice: '5000000'})}
+                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
+                    >
+                      Under 5M
+                    </button>
+                    <button
+                      onClick={() => setFilters({...filters, minPrice: '5000000', maxPrice: '15000000'})}
+                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
+                    >
+                      5M - 15M
+                    </button>
+                    <button
+                      onClick={() => setFilters({...filters, minPrice: '15000000', maxPrice: '25000000'})}
+                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
+                    >
+                      15M - 25M
+                    </button>
+                    <button
+                      onClick={() => setFilters({...filters, minPrice: '25000000', maxPrice: ''})}
+                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
+                    >
+                      25M+
+                    </button>
+                  </div>
                 </div>
                 
                 <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">

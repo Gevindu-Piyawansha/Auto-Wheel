@@ -16,7 +16,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onEditCar,
   onDeleteCar
 }) => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  
+  // All hooks must be called before any conditional returns
   const [isAddingCar, setIsAddingCar] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<Partial<Car>>({
@@ -32,6 +34,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     features: [],
     description: ''
   });
+
+  // Check admin access after all hooks are called
+  if (!user || !isAdmin()) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+          <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
+          <p className="text-sm text-gray-500">Please login as an administrator to continue.</p>
+        </div>
+      </div>
+    );
+  }
 
   const resetForm = () => {
     setFormData({
@@ -144,12 +159,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price (NOK)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price (LKR)</label>
                 <input
                   type="number"
+                  min="0"
+                  step="100000"
                   value={formData.price}
-                  onChange={(e) => setFormData({...formData, price: parseInt(e.target.value)})}
+                  onChange={(e) => {
+                    const value = Math.max(0, parseInt(e.target.value) || 0);
+                    setFormData({...formData, price: value});
+                  }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 15000000"
                   required
                 />
               </div>
@@ -182,13 +203,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input
-                  type="text"
+                <select
                   value={formData.location}
                   onChange={(e) => setFormData({...formData, location: e.target.value})}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   required
-                />
+                >
+                  <option value="">Select Location</option>
+                  <option value="Colombo">Colombo</option>
+                  <option value="Kandy">Kandy</option>
+                  <option value="Galle">Galle</option>
+                  <option value="Negombo">Negombo</option>
+                  <option value="Matara">Matara</option>
+                  <option value="Jaffna">Jaffna</option>
+                  <option value="Batticaloa">Batticaloa</option>
+                  <option value="Kurunegala">Kurunegala</option>
+                  <option value="Ratnapura">Ratnapura</option>
+                  <option value="Anuradhapura">Anuradhapura</option>
+                </select>
               </div>
 
               <div>
@@ -273,9 +305,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Intl.NumberFormat('no-NO', {
+                      {new Intl.NumberFormat('en-LK', {
                         style: 'currency',
-                        currency: 'NOK',
+                        currency: 'LKR',
                         minimumFractionDigits: 0
                       }).format(car.price)}
                     </td>
