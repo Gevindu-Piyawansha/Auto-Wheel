@@ -49,4 +49,19 @@ app.UseCors("frontend");
 app.UseAuthorization();
 app.MapControllers();
 
+// Apply EF Core migrations on startup (safe for idempotent deployment)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AutoWheelDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Failed to apply EF Core migrations on startup");
+        // Don't crash the app in production; logs will indicate migration failure
+    }
+}
+
 app.Run();
