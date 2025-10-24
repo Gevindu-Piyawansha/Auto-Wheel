@@ -20,7 +20,10 @@ async function getDb(): Promise<Db> {
   console.log('Database name:', mongoDbName);
   
   try {
-    const client = new MongoClient(mongoUri);
+    const client = new MongoClient(mongoUri, {
+      serverSelectionTimeoutMS: 10000, // 10 second timeout
+      connectTimeoutMS: 10000,
+    });
     await client.connect();
     console.log('MongoDB connected successfully');
     cachedDb = client.db(mongoDbName);
