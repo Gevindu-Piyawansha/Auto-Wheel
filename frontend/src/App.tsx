@@ -94,10 +94,13 @@ const SimpleNavigation: React.FC<{
   );
 };
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<'home' | 'admin'>('home');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const { user, isAdmin } = useAuth();
+  const [isLoadingCars, setIsLoadingCars] = useState(true);
 
   // Redirect from admin if not authenticated
   React.useEffect(() => {
@@ -105,126 +108,92 @@ const AppContent: React.FC = () => {
       setCurrentView('home');
     }
   }, [currentView, user, isAdmin]);
-  const [cars, setCars] = useState<Car[]>([
-    {
-      id: 1,
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2022,
-      price: 8500000,
-      mileage: 25000,
-      engineCC: '2000cc',
-      fuelType: 'Hybrid',
-      transmission: 'Automatic',
-      vehicleGrade: 'G',
-      category: 'Sedan',
-      location: 'Colombo',
-      image: getCarImage('Toyota', 'Camry'),
-      features: ['Leather Seats', 'Navigation', 'Backup Camera', 'Bluetooth'],
-      description: 'Excellent condition Toyota Camry with low mileage and premium features.',
-      isHotDeal: false,
-      views: 15,
-      rating: 5
-    },
-    {
-      id: 2,
-      make: 'Suzuki',
-      model: 'Alto',
-      year: 2025,
-      price: 6800000,
-      mileage: 2000,
-      engineCC: '660cc',
-      fuelType: 'Petrol',
-      transmission: 'Automatic',
-      vehicleGrade: 'L',
-      category: 'Hatchback',
-      location: 'Colombo',
-      image: getCarImage('Suzuki', 'Alto'),
-      features: ['Air Conditioning', 'Power Steering', 'ABS', 'Airbags'],
-      description: 'SUZUKI ALTO MODEL CODE- HA37S GRADE- L YEAR - 2025 Manufacture 2025 ODOMETER - 2000 KM ENGINE CC- 660 TRANSMISSION - FAT COLOR - LIGHT BLUE FUEL -PETROL',
-      isHotDeal: true,
-      views: 11,
-      rating: 3
-    },
-    {
-      id: 3,
-      make: 'Honda',
-      model: 'Vezel',
-      year: 2024,
-      price: 16700000,
-      mileage: 5000,
-      engineCC: '1500cc',
-      fuelType: 'Hybrid',
-      transmission: 'CVT',
-      vehicleGrade: 'G',
-      category: 'SUV',
-      location: 'Kandy',
-      image: getCarImage('Honda', 'Vezel'),
-      features: ['Honda Sensing', 'LED Headlights', 'Touchscreen', 'Backup Camera'],
-      description: 'Premium Honda Vezel with hybrid technology and modern features directly imported from Japan.',
-      isHotDeal: true,
-      views: 8,
-      rating: 5
-    },
-    {
-      id: 4,
-      make: 'Toyota',
-      model: 'Raize',
-      year: 2024,
-      price: 12000000,
-      mileage: 3000,
-      engineCC: '1000cc',
-      fuelType: 'Petrol',
-      transmission: 'CVT',
-      vehicleGrade: 'G',
-      category: 'SUV',
-      location: 'Galle',
-      image: getCarImage('Toyota', 'Raize'),
-      features: ['Smart Assist', 'Keyless Entry', 'Push Start', 'Climate Control'],
-      description: 'Compact SUV Toyota Raize with excellent fuel efficiency and modern safety features.',
-      isHotDeal: false,
-      views: 12,
-      rating: 4
-    },
-    {
-      id: 5,
-      make: 'Nissan',
-      model: 'Aura',
-      year: 2024,
-      price: 14000000,
-      mileage: 4500,
-      engineCC: '1200cc',
-      fuelType: 'Petrol',
-      transmission: 'CVT',
-      vehicleGrade: 'X',
-      category: 'Hatchback',
-      location: 'Negombo',
-      image: getCarImage('Nissan', 'Aura'),
-      features: ['Intelligent Key', 'Around View Monitor', 'Nissan Connect', 'LED Lights'],
-      description: 'Modern Nissan Aura with advanced technology and premium interior features.',
-      isHotDeal: true,
-      views: 6,
-      rating: 4
-    }
-  ]);
 
-  const handleAddCar = (newCar: Omit<Car, 'id'>) => {
-    const car: Car = {
-      ...newCar,
-      id: Math.max(...cars.map(c => c.id)) + 1,
-      image: newCar.image || getCarImage(newCar.make, newCar.model)
+  const [cars, setCars] = useState<Car[]>([]);
+
+  // Fetch cars from API on component mount
+  React.useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        setIsLoadingCars(true);
+        const response = await fetch(`${API_BASE_URL}/api/cars`);
+        if (response.ok) {
+          const data = await response.json();
+          // Map MongoDB _id to id for frontend compatibility
+          const mappedCars = data.map((car: any) => ({
+            ...car,
+            id: car._id || car.id,
+            image: car.image || getCarImage(car.make, car.model)
+          }));
+          setCars(mappedCars);
+        }
+      } catch (error) {
+        console.error('Failed to fetch cars:', error);
+      } finally {
+        setIsLoadingCars(false);
+      }
     };
-    setCars([...cars, car]);
+    fetchCars();
+  }, []);
+
+  const handleAddCar = async (newCar: Omit<Car, 'id'>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/cars`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newCar,
+          image: newCar.image || getCarImage(newCar.make, newCar.model)
+        })
+      });
+      
+      if (response.ok) {
+        const savedCar = await response.json();
+        const car: Car = {
+          ...savedCar,
+          id: savedCar.id || savedCar._id,
+          image: savedCar.image || getCarImage(newCar.make, newCar.model)
+        };
+        setCars([...cars, car]);
+      }
+    } catch (error) {
+      console.error('Failed to add car:', error);
+      alert('Failed to add car. Please try again.');
+    }
   };
 
-  const handleEditCar = (id: number, updatedCar: Partial<Car>) => {
-    setCars(cars.map(car => 
-      car.id === id ? { ...car, ...updatedCar } : car
-    ));
+  const handleEditCar = async (id: number, updatedCar: Partial<Car>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/cars/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCar)
+      });
+      
+      if (response.ok) {
+        setCars(cars.map(car => 
+          car.id === id ? { ...car, ...updatedCar } : car
+        ));
+      }
+    } catch (error) {
+      console.error('Failed to edit car:', error);
+      alert('Failed to update car. Please try again.');
+    }
   };
 
-  const handleDeleteCar = (id: number) => {
-    setCars(cars.filter(car => car.id !== id));
+  const handleDeleteCar = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/cars/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok || response.status === 204) {
+        setCars(cars.filter(car => car.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete car:', error);
+      alert('Failed to delete car. Please try again.');
+    }
   };
 
   return (
@@ -235,7 +204,14 @@ const AppContent: React.FC = () => {
         onLoginClick={() => setIsLoginModalOpen(true)}
       />
       
-      {currentView === 'home' ? (
+      {isLoadingCars ? (
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading cars...</p>
+          </div>
+        </div>
+      ) : currentView === 'home' ? (
         <CarListing cars={cars} />
       ) : (
         <AdminDashboard
