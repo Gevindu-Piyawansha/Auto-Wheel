@@ -1,19 +1,14 @@
-import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { MongoClient, Db } from 'mongodb';
-import { onRequest } from 'firebase-functions/v2/https';
 
-admin.initializeApp();
-
-// Mongo connection (Atlas free tier recommended)
-const mongoUri = functions.config().mongodb?.uri || process.env.MONGODB_URI;
+// Mongo connection (Atlas free tier)
+const mongoUri = process.env.MONGODB_URI as string;
 const mongoDbName = 'auto-wheel';
 
 if (!mongoUri) {
-  // Surface a clear error early during cold start if config isn't set
-  console.error('MONGODB_URI is not set. Configure Firebase Functions config with: firebase functions:config:set mongodb.uri="..."');
+  console.error('MONGODB_URI environment variable is not set!');
+  process.exit(1);
 }
 
 let cachedDb: Db | null = null;
@@ -29,8 +24,13 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+// Health check
+app.get('/', (_req: Request, res: Response) => {
+  return res.json({ status: 'ok', message: 'Auto-Wheel API is running' });
+});
+
 // GET /api/cars
-app.get('/cars', async (_req: Request, res: Response) => {
+app.get('/api/cars', async (_req: Request, res: Response) => {
   try {
     const db = await getDb();
     const cars = await db.collection('Cars').find({}).toArray();
@@ -42,7 +42,7 @@ app.get('/cars', async (_req: Request, res: Response) => {
 });
 
 // POST /api/inquiries
-app.post('/inquiries', async (req: Request, res: Response) => {
+app.post('/api/inquiries', async (req: Request, res: Response) => {
   try {
     const payload = req.body || {};
     if (!payload.customerName || !payload.customerEmail || !payload.carId) {
@@ -59,7 +59,7 @@ app.post('/inquiries', async (req: Request, res: Response) => {
 });
 
 // GET /api/inquiries (simple admin list; add auth later)
-app.get('/inquiries', async (_req: Request, res: Response) => {
+app.get('/api/inquiries', async (_req: Request, res: Response) => {
   try {
     const db = await getDb();
     const items = await db.collection('Inquiries').find({}).sort({ createdAt: -1 }).toArray();
@@ -70,4 +70,7 @@ app.get('/inquiries', async (_req: Request, res: Response) => {
   }
 });
 
-export const api = onRequest({ region: 'us-central1', cors: true }, app as any);
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Auto-Wheel API listening on port ${PORT}`);
+});

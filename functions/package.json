@@ -2,9 +2,10 @@
   "name": "auto-wheel-functions",
   "private": true,
   "engines": { "node": "18" },
-  "main": "lib/index.js",
+  "main": "lib/server.js",
   "scripts": {
     "build": "tsc -p .",
+    "start": "node lib/server.js",
     "serve": "firebase emulators:start --only functions,hosting",
     "deploy": "firebase deploy --only functions",
     "lint": "eslint ."
@@ -12,8 +13,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "firebase-admin": "^12.7.0",
-    "firebase-functions": "^5.0.0",
     "mongodb": "^6.8.0"
   },
   "devDependencies": {

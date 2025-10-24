@@ -38,17 +38,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.api = void 0;
 const admin = __importStar(require("firebase-admin"));
+const functions = __importStar(require("firebase-functions"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mongodb_1 = require("mongodb");
 const https_1 = require("firebase-functions/v2/https");
 admin.initializeApp();
 // Mongo connection (Atlas free tier recommended)
-const mongoUri = process.env.MONGODB_URI;
-const mongoDbName = process.env.MONGO_DB_NAME || 'auto-wheel';
+const mongoUri = functions.config().mongodb?.uri || process.env.MONGODB_URI;
+const mongoDbName = 'auto-wheel';
 if (!mongoUri) {
-    // Surface a clear error early during cold start if secrets aren't set
-    console.error('MONGODB_URI is not set. Configure Firebase Functions secret MONGODB_URI.');
+    // Surface a clear error early during cold start if config isn't set
+    console.error('MONGODB_URI is not set. Configure Firebase Functions config with: firebase functions:config:set mongodb.uri="..."');
 }
 let cachedDb = null;
 async function getDb() {
