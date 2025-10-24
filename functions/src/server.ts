@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Db, ObjectId } from 'mongodb';
 
 // Mongo connection (Atlas free tier)
 const mongoUri = process.env.MONGODB_URI as string;
@@ -38,6 +38,67 @@ app.get('/api/cars', async (_req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Failed to fetch cars' });
+  }
+});
+
+// POST /api/cars - Create new car
+app.post('/api/cars', async (req: Request, res: Response) => {
+  try {
+    const car = req.body;
+    if (!car.make || !car.model || !car.year || !car.price) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const db = await getDb();
+    const result = await db.collection('Cars').insertOne({
+      ...car,
+      createdAt: new Date()
+    });
+    return res.status(201).json({ id: result.insertedId, ...car });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to create car' });
+  }
+});
+
+// PUT /api/cars/:id - Update car
+app.put('/api/cars/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const car = req.body;
+    const db = await getDb();
+    
+    const result = await db.collection('Cars').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...car, updatedAt: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    return res.json({ id, ...car });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to update car' });
+  }
+});
+
+// DELETE /api/cars/:id - Delete car
+app.delete('/api/cars/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const db = await getDb();
+    
+    const result = await db.collection('Cars').deleteOne({ _id: new ObjectId(id) });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to delete car' });
   }
 });
 
