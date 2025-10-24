@@ -14,10 +14,21 @@ if (!mongoUri) {
 let cachedDb: Db | null = null;
 async function getDb(): Promise<Db> {
   if (cachedDb) return cachedDb;
-  const client = new MongoClient(mongoUri);
-  await client.connect();
-  cachedDb = client.db(mongoDbName);
-  return cachedDb;
+  
+  console.log('Connecting to MongoDB...');
+  console.log('MongoDB URI configured:', !!mongoUri);
+  console.log('Database name:', mongoDbName);
+  
+  try {
+    const client = new MongoClient(mongoUri);
+    await client.connect();
+    console.log('MongoDB connected successfully');
+    cachedDb = client.db(mongoDbName);
+    return cachedDb;
+  } catch (error) {
+    console.error('MongoDB connection failed:', error);
+    throw error;
+  }
 }
 
 const app = express();
@@ -27,6 +38,27 @@ app.use(express.json());
 // Health check
 app.get('/', (_req: Request, res: Response) => {
   return res.json({ status: 'ok', message: 'Auto-Wheel API is running' });
+});
+
+// Health check with DB
+app.get('/health', async (_req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    await db.admin().ping();
+    return res.json({ 
+      status: 'ok', 
+      message: 'Auto-Wheel API is running',
+      database: 'connected',
+      mongoUri: mongoUri ? 'configured' : 'missing'
+    });
+  } catch (err) {
+    console.error('Health check failed:', err);
+    return res.status(503).json({ 
+      status: 'error', 
+      message: 'Database connection failed',
+      error: err instanceof Error ? err.message : 'Unknown error'
+    });
+  }
 });
 
 // GET /api/cars
