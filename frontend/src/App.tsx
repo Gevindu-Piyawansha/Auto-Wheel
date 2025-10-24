@@ -123,7 +123,8 @@ const AppContent: React.FC = () => {
           const mappedCars = data.map((car: any) => ({
             ...car,
             id: car._id || car.id,
-            image: car.image || getCarImage(car.make, car.model)
+            // Only use fallback image if no image is provided at all
+            image: car.image && car.image.trim() !== '' ? car.image : getCarImage(car.make, car.model)
           }));
           setCars(mappedCars);
         }
@@ -138,13 +139,16 @@ const AppContent: React.FC = () => {
 
   const handleAddCar = async (newCar: Omit<Car, 'id'>) => {
     try {
+      const carData = {
+        ...newCar,
+        // Only use fallback image if no image URL provided
+        image: newCar.image && newCar.image.trim() !== '' ? newCar.image : getCarImage(newCar.make, newCar.model)
+      };
+      
       const response = await fetch(`${API_BASE_URL}/api/cars`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...newCar,
-          image: newCar.image || getCarImage(newCar.make, newCar.model)
-        })
+        body: JSON.stringify(carData)
       });
       
       if (response.ok) {
@@ -152,7 +156,7 @@ const AppContent: React.FC = () => {
         const car: Car = {
           ...savedCar,
           id: savedCar.id || savedCar._id,
-          image: savedCar.image || getCarImage(newCar.make, newCar.model)
+          image: savedCar.image
         };
         setCars([...cars, car]);
       }
