@@ -689,40 +689,6 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Engine CC</label>
-                  <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    value={filters.engineCC}
-                    onChange={(e) => setFilters({...filters, engineCC: e.target.value})}
-                  >
-                    <option value="">All Engines</option>
-                    <option value="660cc">660cc</option>
-                    <option value="1000cc">1000cc</option>
-                    <option value="1200cc">1200cc</option>
-                    <option value="1500cc">1500cc</option>
-                    <option value="1800cc">1800cc</option>
-                    <option value="2000cc">2000cc</option>
-                    <option value="2500cc">2500cc+</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Grade</label>
-                  <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    value={filters.vehicleGrade}
-                    onChange={(e) => setFilters({...filters, vehicleGrade: e.target.value})}
-                  >
-                    <option value="">All Grades</option>
-                    <option value="L">L Grade</option>
-                    <option value="G">G Grade</option>
-                    <option value="X">X Grade</option>
-                    <option value="S">S Grade</option>
-                    <option value="Z">Z Grade</option>
-                  </select>
-                </div>
-
-                <div>
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
