@@ -209,55 +209,55 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   };
 
   const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({ car, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b p-3 md:p-4 flex justify-between items-center">
+          <h2 className="text-base md:text-2xl font-bold text-gray-900">
             {car.make.toUpperCase()} {car.model.toUpperCase()} ({car.year})
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full"
+            className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="p-3 md:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {/* Car Image */}
             <div>
               <img
                 src={car.image}
                 alt={`${car.make} ${car.model}`}
-                className="w-full h-96 object-cover rounded-lg shadow-md"
+                className="w-full h-48 md:h-96 object-cover rounded-lg shadow-md"
               />
               {car.isHotDeal && (
-                <div className="mt-2 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold inline-block">
+                <div className="mt-2 bg-orange-500 text-white px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-bold inline-block">
                   🔥 HOT DEAL
                 </div>
               )}
             </div>
 
             {/* Car Details */}
-            <div className="space-y-6">
+            <div className="space-y-3 md:space-y-6">
               {/* Price Information */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Price Information</h3>
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2">Price Information</h3>
                 <div className="space-y-1">
                   <div className="flex justify-between">
-                    <span>Base Price:</span>
-                    <span className="font-bold text-xl">{formatPrice(car.price)}</span>
+                    <span className="text-xs md:text-base">Base Price:</span>
+                    <span className="font-bold text-base md:text-xl">{formatPrice(car.price)}</span>
                   </div>
                   {car.tax && car.tax > 0 && (
                     <>
                       <div className="flex justify-between">
-                        <span>Registration Tax:</span>
-                        <span>{formatPrice(car.tax)}</span>
+                        <span className="text-xs md:text-base">Registration Tax:</span>
+                        <span className="text-xs md:text-base">{formatPrice(car.tax)}</span>
                       </div>
                       <div className="flex justify-between border-t pt-1">
-                        <span className="font-semibold">Total Price:</span>
-                        <span className="font-bold text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
+                        <span className="font-semibold text-xs md:text-base">Total Price:</span>
+                        <span className="font-bold text-base md:text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
                       </div>
                     </>
                   )}
@@ -265,64 +265,64 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               </div>
 
               {/* Basic Specifications */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3">Specifications</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Specifications</h3>
+                <div className="grid grid-cols-2 gap-2 md:gap-4">
                   <div>
-                    <span className="text-gray-600">Make:</span>
-                    <p className="font-medium">{car.make}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Make:</span>
+                    <p className="font-medium text-xs md:text-base">{car.make}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Model:</span>
-                    <p className="font-medium">{car.model}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Model:</span>
+                    <p className="font-medium text-xs md:text-base">{car.model}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Year:</span>
-                    <p className="font-medium">{car.year}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Year:</span>
+                    <p className="font-medium text-xs md:text-base">{car.year}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Category:</span>
-                    <p className="font-medium">{car.category}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Category:</span>
+                    <p className="font-medium text-xs md:text-base">{car.category}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Mileage:</span>
-                    <p className="font-medium">{car.mileage?.toLocaleString() || 0} km</p>
+                    <span className="text-gray-600 text-xs md:text-base">Mileage:</span>
+                    <p className="font-medium text-xs md:text-base">{car.mileage?.toLocaleString() || 0} km</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Fuel Type:</span>
-                    <p className="font-medium">{car.fuelType}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Fuel Type:</span>
+                    <p className="font-medium text-xs md:text-base">{car.fuelType}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Transmission:</span>
-                    <p className="font-medium">{car.transmission}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Transmission:</span>
+                    <p className="font-medium text-xs md:text-base">{car.transmission}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Engine:</span>
-                    <p className="font-medium">{car.engineCC}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Engine:</span>
+                    <p className="font-medium text-xs md:text-base">{car.engineCC}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Grade:</span>
-                    <p className="font-medium">{car.vehicleGrade}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Grade:</span>
+                    <p className="font-medium text-xs md:text-base">{car.vehicleGrade}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Rating:</span>
-                    <p className="font-medium">{"⭐".repeat(car.rating || 5)}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Rating:</span>
+                    <p className="font-medium text-xs md:text-base">{"⭐".repeat(car.rating || 5)}</p>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <p className="text-gray-700">{car.description}</p>
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-700 text-xs md:text-base">{car.description}</p>
               </div>
 
               {/* Features */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3">Features</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Features</h3>
+                <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {car.features.map((feature, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    <span key={index} className="bg-blue-100 text-blue-800 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-sm">
                       {feature}
                     </span>
                   ))}
@@ -330,15 +330,15 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <button
                   onClick={() => handleInquiry(car)}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center space-x-2 font-medium"
+                  className="w-full bg-blue-600 text-white py-2 md:py-3 px-4 md:px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 font-medium text-sm md:text-base"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                   <span>Make an Inquiry</span>
                 </button>
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-[10px] md:text-sm text-gray-600">
                   💰 Leasing Available | 🚚 Free Delivery | 📞 Call for Best Price
                 </div>
               </div>
@@ -536,63 +536,43 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         <img
           src={car.image}
           alt={`${car.make} ${car.model}`}
-          className="w-full h-48 object-cover"
+          className="w-full h-32 md:h-48 object-cover"
         />
         {car.isHotDeal && (
-          <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
-            🔥 HOT DEAL
+          <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-orange-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-bold">
+            🔥 HOT
           </div>
         )}
-        <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">
+        <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-blue-600 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-xs md:text-sm font-semibold">
           {formatPrice(car.price)}
         </div>
       </div>
 
-      <div className="p-3 sm:p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">
+      <div className="p-2 md:p-4">
+        <div className="mb-1 md:mb-2">
+          <h3 className="text-xs md:text-lg font-bold text-gray-900 line-clamp-1">
             {car.make.toUpperCase()} {car.model.toUpperCase()}
           </h3>
-          <div className="flex items-center text-yellow-400 text-xs sm:text-sm">
-            {"⭐".repeat(car.rating || 5)}
-          </div>
         </div>
 
-        <div className="text-xs sm:text-sm text-gray-600 mb-2">
-          {car.year} • {car.category} • {car.fuelType}
+        <div className="text-[10px] md:text-sm text-gray-600 mb-1 md:mb-2">
+          {car.year} • {car.mileage?.toLocaleString() || 0}km • {car.engineCC}
         </div>
 
-        <div className="text-gray-700 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
-          {car.description}
-        </div>
-
-        <div className="border-t pt-2 sm:pt-3 mt-2 sm:mt-3">
-          <div className="text-center mb-2 sm:mb-3">
-            <div className="text-base sm:text-lg font-bold text-gray-900">
-              {formatPrice(car.price)}
-            </div>
-            {car.tax && car.tax > 0 && (
-              <div className="text-xs sm:text-sm text-gray-600">
-                Total: {formatPrice(car.price + car.tax)}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={() => setSelectedCar(car)}
-              className="w-full bg-gray-600 text-white py-2 px-3 sm:px-4 rounded hover:bg-gray-700 transition-colors duration-300 text-xs sm:text-sm font-medium"
-            >
-              👁️ View Details
-            </button>
-            <button
-              onClick={() => handleInquiry(car)}
-              className="w-full bg-blue-600 text-white py-2 px-3 sm:px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-xs sm:text-sm font-medium flex items-center justify-center space-x-1"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Make an Inquiry</span>
-            </button>
-          </div>
+        <div className="space-y-1 md:space-y-2 mt-2">
+          <button
+            onClick={() => setSelectedCar(car)}
+            className="w-full bg-gray-600 text-white py-1 md:py-2 px-2 md:px-4 rounded hover:bg-gray-700 transition-colors text-[10px] md:text-sm font-medium"
+          >
+            👁️ View
+          </button>
+          <button
+            onClick={() => handleInquiry(car)}
+            className="w-full bg-blue-600 text-white py-1 md:py-2 px-2 md:px-4 rounded hover:bg-blue-700 transition-colors text-[10px] md:text-sm font-medium flex items-center justify-center gap-1"
+          >
+            <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
+            <span>Inquire</span>
+          </button>
         </div>
       </div>
     </div>
@@ -875,7 +855,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
             {isLoading ? (
               <div className={viewMode === 'grid' ?
-                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" :
+                "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
                 "space-y-4"
               }>
                 {Array.from({ length: 6 }).map((_, index) => (
@@ -885,7 +865,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
             ) : (
               <>
                 <div className={viewMode === 'grid' ?
-                  "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" :
+                  "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
                   "space-y-4"
                 }>
                   {sortedCars.map(car => (

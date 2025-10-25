@@ -100,7 +100,7 @@ const Navigation: React.FC<NavigationProps> = ({
             ) : (
               <button
                 onClick={onLoginClick}
-                className="flex items-center px-2.5 py-1 text-[11px] font-medium text-gray-600 border border-gray-300 hover:bg-gray-50 rounded transition-colors"
+                className="flex items-center px-2.5 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 hover:bg-gray-50 rounded transition-colors whitespace-nowrap"
               >
                 <LogIn className="w-3 h-3 mr-1" />
                 Admin
