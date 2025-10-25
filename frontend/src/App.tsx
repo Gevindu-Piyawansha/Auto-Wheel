@@ -7,6 +7,7 @@ import AutoWheelLogo from './components/AutoWheelLogo';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getCarImage } from './utils/carImages';
+import { JapanFlag, SriLankaFlag } from './components/FlagIcons';
 import { LogOut, User, Settings } from 'lucide-react';
 import './App.css';
 
@@ -36,11 +37,21 @@ const SimpleNavigation: React.FC<{
               className="h-10 w-10" 
               onClick={() => onViewChange('home')}
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
-              AutoWheel
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+                AutoWheel
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-gray-600 whitespace-nowrap flex items-center gap-1">
+                <JapanFlag className="w-3 h-3 inline-block" /> Direct Import from Japan to Sri Lanka <SriLankaFlag className="w-3 h-3 inline-block" />
+              </span>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center text-xs text-gray-600 mr-4 space-x-3">
+              <span>✓ Free Delivery</span>
+              <span>✓ Best Prices</span>
+              <span>✓ Leasing Available</span>
+            </div>
             <button
               onClick={() => onViewChange('home')}
               className={`px-3 py-2 rounded-md text-sm font-medium ${
@@ -49,32 +60,6 @@ const SimpleNavigation: React.FC<{
             >
               Browse Cars
             </button>
-            
-            {user && isAdmin() && (
-              <>
-                <button
-                  onClick={() => onViewChange('admin')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
-                    currentView === 'admin' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Settings className="w-4 h-4 mr-1" />
-                  Admin Panel
-                </button>
-                <div className="flex items-center space-x-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-700">{user.name}</span>
-                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Admin</span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
-                >
-                  <LogOut className="w-4 h-4 mr-1" />
-                  Logout
-                </button>
-              </>
-            )}
           </div>
         </div>
       </div>
@@ -87,7 +72,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<'home' | 'admin'>('home');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [isLoadingCars, setIsLoadingCars] = useState(true);
 
   // Redirect from admin if not authenticated
@@ -246,7 +231,15 @@ const AppContent: React.FC = () => {
         )}
       </div>
 
-      <Footer onLoginClick={() => setIsLoginModalOpen(true)} />
+      <Footer 
+        onLoginClick={() => setIsLoginModalOpen(true)}
+        isAdminLoggedIn={!!(user && isAdmin())}
+        onAdminPanelClick={() => setCurrentView('admin')}
+        onLogoutClick={() => {
+          logout();
+          setCurrentView('home');
+        }}
+      />
 
       <LoginModal 
         isOpen={isLoginModalOpen}
