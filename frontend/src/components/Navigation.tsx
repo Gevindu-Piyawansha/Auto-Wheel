@@ -30,15 +30,15 @@ const Navigation: React.FC<NavigationProps> = ({
           {/* Logo */}
           <div className="flex items-center">
             <div 
-              className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+              className="flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 transition-transform"
               onClick={() => onViewChange('home')}
               title="Go to Home Page"
             >
               <AutoWheelLogo 
-                className="h-8 w-8" 
+                className="h-6 w-6 sm:h-8 sm:w-8" 
                 onClick={() => onViewChange('home')}
               />
-              <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+              <span className="text-base sm:text-xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
                 AutoWheel
               </span>
             </div>
@@ -75,26 +75,27 @@ const Navigation: React.FC<NavigationProps> = ({
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             {user ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-700 font-medium">
+              <div className="flex items-center space-x-1 sm:space-x-3">
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <span className="hidden sm:inline text-sm text-gray-700 font-medium">
                     {user.name}
                   </span>
                   {user.role === 'admin' && (
-                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                       Admin
                     </span>
                   )}
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                  className="flex items-center px-2 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
                 >
-                  <LogOut className="w-4 h-4 mr-1" />
-                  Logout
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
+                  <span className="hidden sm:inline">Logout</span>
+                  <span className="sm:hidden">Out</span>
                 </button>
               </div>
             ) : (

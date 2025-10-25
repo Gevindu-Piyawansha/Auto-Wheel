@@ -4,9 +4,10 @@ import CarListing, { Car } from './components/CarListing';
 import AdminDashboard from './components/AdminDashboard';
 import LoginModal from './components/LoginModal';
 import AutoWheelLogo from './components/AutoWheelLogo';
+import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getCarImage } from './utils/carImages';
-import { LogIn, LogOut, User, Settings } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
 import './App.css';
 
 // Navigation Component
@@ -23,15 +24,9 @@ const SimpleNavigation: React.FC<{
   };
 
   return (
-    <>
-      {/* Top Banner */}
-      <div className="bg-blue-600 text-white text-center py-2 text-sm">
-        🇯🇵 Direct Import from Japan to Sri Lanka 🇱🇰 | Free Delivery | Best Prices | Leasing Available
-      </div>
-      
-      <nav className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+    <nav className="bg-white shadow-lg border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           <div 
             className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => onViewChange('home')}
@@ -41,7 +36,9 @@ const SimpleNavigation: React.FC<{
               className="h-10 w-10" 
               onClick={() => onViewChange('home')}
             />
-            <span className="text-xl font-bold text-gray-900">Auto-Wheel</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+              AutoWheel
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <button
@@ -53,7 +50,7 @@ const SimpleNavigation: React.FC<{
               Browse Cars
             </button>
             
-            {user && isAdmin() ? (
+            {user && isAdmin() && (
               <>
                 <button
                   onClick={() => onViewChange('admin')}
@@ -77,20 +74,11 @@ const SimpleNavigation: React.FC<{
                   Logout
                 </button>
               </>
-            ) : (
-              <button
-                onClick={onLoginClick}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
-              >
-                <LogIn className="w-4 h-4 mr-1" />
-                Admin Login
-              </button>
             )}
           </div>
         </div>
       </div>
     </nav>
-    </>
   );
 };
 
@@ -231,30 +219,34 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="App">
+    <div className="App flex flex-col min-h-screen">
       <SimpleNavigation 
         currentView={currentView}
         onViewChange={setCurrentView}
         onLoginClick={() => setIsLoginModalOpen(true)}
       />
       
-      {isLoadingCars ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading cars...</p>
+      <div className="flex-grow">
+        {isLoadingCars ? (
+          <div className="flex justify-center items-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading cars...</p>
+            </div>
           </div>
-        </div>
-      ) : currentView === 'home' ? (
-        <CarListing cars={cars} />
-      ) : (
-        <AdminDashboard
-          cars={cars}
-          onAddCar={handleAddCar}
-          onEditCar={handleEditCar}
-          onDeleteCar={handleDeleteCar}
-        />
-      )}
+        ) : currentView === 'home' ? (
+          <CarListing cars={cars} />
+        ) : (
+          <AdminDashboard
+            cars={cars}
+            onAddCar={handleAddCar}
+            onEditCar={handleEditCar}
+            onDeleteCar={handleDeleteCar}
+          />
+        )}
+      </div>
+
+      <Footer onLoginClick={() => setIsLoginModalOpen(true)} />
 
       <LoginModal 
         isOpen={isLoginModalOpen}
