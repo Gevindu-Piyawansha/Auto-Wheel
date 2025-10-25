@@ -145,58 +145,88 @@ const AppContent: React.FC = () => {
         image: newCar.image && newCar.image.trim() !== '' ? newCar.image : getCarImage(newCar.make, newCar.model)
       };
       
+      console.log('Adding car:', carData);
+      
       const response = await fetch(`${API_BASE_URL}/api/cars`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(carData)
       });
       
-      if (response.ok) {
-        const savedCar = await response.json();
-        const car: Car = {
-          ...savedCar,
-          id: savedCar.id || savedCar._id,
-          image: savedCar.image
-        };
-        setCars([...cars, car]);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error:', errorData);
+        alert(`Failed to add car: ${errorData.error || 'Server error'}`);
+        return;
       }
+      
+      const savedCar = await response.json();
+      console.log('Car saved successfully:', savedCar);
+      
+      const car: Car = {
+        ...savedCar,
+        id: savedCar.id || savedCar._id,
+        image: savedCar.image
+      };
+      setCars([...cars, car]);
+      alert('Car added successfully!');
     } catch (error) {
       console.error('Failed to add car:', error);
-      alert('Failed to add car. Please try again.');
+      alert('Failed to add car. Please check your internet connection and try again.');
     }
   };
 
   const handleEditCar = async (id: number, updatedCar: Partial<Car>) => {
     try {
+      console.log('Updating car:', id, updatedCar);
+      
       const response = await fetch(`${API_BASE_URL}/api/cars/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedCar)
       });
       
-      if (response.ok) {
-        setCars(cars.map(car => 
-          car.id === id ? { ...car, ...updatedCar } : car
-        ));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error:', errorData);
+        alert(`Failed to update car: ${errorData.error || 'Server error'}`);
+        return;
       }
+      
+      setCars(cars.map(car => 
+        car.id === id ? { ...car, ...updatedCar } : car
+      ));
+      alert('Car updated successfully!');
     } catch (error) {
       console.error('Failed to edit car:', error);
-      alert('Failed to update car. Please try again.');
+      alert('Failed to update car. Please check your internet connection and try again.');
     }
   };
 
   const handleDeleteCar = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this car?')) {
+      return;
+    }
+    
     try {
+      console.log('Deleting car:', id);
+      
       const response = await fetch(`${API_BASE_URL}/api/cars/${id}`, {
         method: 'DELETE'
       });
       
-      if (response.ok || response.status === 204) {
-        setCars(cars.filter(car => car.id !== id));
+      if (!response.ok && response.status !== 204) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error:', errorData);
+        alert(`Failed to delete car: ${errorData.error || 'Server error'}`);
+        return;
       }
+      
+      setCars(cars.filter(car => car.id !== id));
+      alert('Car deleted successfully!');
     } catch (error) {
       console.error('Failed to delete car:', error);
-      alert('Failed to delete car. Please try again.');
+      alert('Failed to delete car. Please check your internet connection and try again.');
     }
   };
 

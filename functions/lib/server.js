@@ -79,18 +79,27 @@ app.get('/api/cars', async (_req, res) => {
 app.post('/api/cars', async (req, res) => {
     try {
         const car = req.body;
-        if (!car.make || !car.model || !car.year || !car.price) {
-            return res.status(400).json({ error: 'Missing required fields' });
+        console.log('Received car data:', car);
+        // Validate required fields
+        if (!car.make || !car.model || !car.year || car.price === undefined || car.price === null) {
+            console.error('Validation failed. Missing fields:', {
+                make: !car.make,
+                model: !car.model,
+                year: !car.year,
+                price: car.price === undefined || car.price === null
+            });
+            return res.status(400).json({ error: 'Missing required fields: make, model, year, and price are required' });
         }
         const db = await getDb();
         const result = await db.collection('Cars').insertOne({
             ...car,
             createdAt: new Date()
         });
+        console.log('Car created successfully:', result.insertedId);
         return res.status(201).json({ id: result.insertedId, ...car });
     }
     catch (err) {
-        console.error(err);
+        console.error('Error creating car:', err);
         return res.status(500).json({ error: 'Failed to create car' });
     }
 });
