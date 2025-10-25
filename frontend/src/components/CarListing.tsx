@@ -63,6 +63,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [inquiryCar, setInquiryCar] = useState<Car | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('default');
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
@@ -130,6 +131,22 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     return matchesSearch && matchesMake && matchesFuelType && matchesCategory &&
            matchesEngineCC && matchesVehicleGrade && matchesTransmission &&
            matchesHotDeal && matchesPrice;
+  });
+
+  // Apply sorting
+  const sortedCars = [...filteredCars].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'year-newest':
+        return b.year - a.year;
+      case 'mileage-lowest':
+        return (a.mileage || 0) - (b.mileage || 0);
+      default:
+        return 0;
+    }
   });
 
   const formatPrice = (price: number) => {
@@ -773,12 +790,17 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           <div className="lg:w-3/4">
             {!isLoading && (
               <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-600">{filteredCars.length} cars found</p>
-                <select className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                  <option>Sort by: Price (Low to High)</option>
-                  <option>Sort by: Price (High to Low)</option>
-                  <option>Sort by: Year (Newest)</option>
-                  <option>Sort by: Mileage (Lowest)</option>
+                <p className="text-gray-600">{sortedCars.length} cars found</p>
+                <select 
+                  className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="default">Sort by: Default</option>
+                  <option value="price-low">Sort by: Price (Low to High)</option>
+                  <option value="price-high">Sort by: Price (High to Low)</option>
+                  <option value="year-newest">Sort by: Year (Newest)</option>
+                  <option value="mileage-lowest">Sort by: Mileage (Lowest)</option>
                 </select>
               </div>
             )}
@@ -798,12 +820,12 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                   "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
                   "space-y-4"
                 }>
-                  {filteredCars.map(car => (
+                  {sortedCars.map(car => (
                     <CarCard key={car.id} car={car} />
                   ))}
                 </div>
 
-                {filteredCars.length === 0 && (
+                {sortedCars.length === 0 && (
                   <div className="text-center py-12">
                     <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
                     <button
