@@ -64,6 +64,8 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [sortBy, setSortBy] = useState<string>('default');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 50000000 });
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
@@ -124,9 +126,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     const matchesTransmission = filters.transmission === '' || car.transmission === filters.transmission;
     const matchesHotDeal = !filters.isHotDeal || car.isHotDeal;
 
-    const minPrice = parseInt(filters.minPrice) || 0;
-    const maxPrice = parseInt(filters.maxPrice) || Infinity;
-    const matchesPrice = car.price >= minPrice && car.price <= maxPrice;
+    const matchesPrice = car.price >= priceRange.min && car.price <= priceRange.max;
 
     return matchesSearch && matchesMake && matchesFuelType && matchesCategory &&
            matchesEngineCC && matchesVehicleGrade && matchesTransmission &&
@@ -643,10 +643,34 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
           <div className="lg:w-1/4">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center mb-4">
-                <Filter className="w-5 h-5 mr-2 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            {/* Filter Toggle Button (Mobile/Tablet) */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="lg:hidden w-full mb-4 bg-blue-600 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+            >
+              <Filter className="w-5 h-5" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+
+            {/* Filters Panel */}
+            <div className={`bg-white rounded-lg shadow-md p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <Filter className="w-5 h-5 mr-2 text-gray-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                </div>
+                <button
+                  onClick={() => {
+                    setFilters({
+                      minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
+                      category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
+                    });
+                    setPriceRange({ min: 0, max: 50000000 });
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-700"
+                >
+                  Clear All
+                </button>
               </div>
 
               <div className="space-y-4">
@@ -706,6 +730,19 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+                  <select
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.transmission}
+                    onChange={(e) => setFilters({...filters, transmission: e.target.value})}
+                  >
+                    <option value="">All Types</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+
+                <div>
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -717,71 +754,96 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                   </label>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (LKR)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100000"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="1,000,000"
-                    value={filters.minPrice}
-                    onChange={(e) => {
-                      const value = Math.max(0, parseInt(e.target.value) || 0);
-                      setFilters({...filters, minPrice: value.toString()});
-                    }}
-                  />
-                </div>
+                {/* Price Range Slider - Last */}
+                <div className="pt-2 border-t border-gray-200">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Price Range
+                  </label>
+                  <div className="px-2 pb-2">
+                    {/* Simplified Dual Handle Slider */}
+                    <div className="space-y-6 pb-4">
+                      {/* Min Price Slider */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-xs font-medium text-gray-600">Minimum Price</label>
+                          <span className="text-xs font-semibold text-blue-600">{formatPrice(priceRange.min)}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="50000000"
+                          step="500000"
+                          value={priceRange.min}
+                          onChange={(e) => {
+                            const newMin = parseInt(e.target.value);
+                            if (newMin < priceRange.max - 1000000) {
+                              setPriceRange({ ...priceRange, min: newMin });
+                            }
+                          }}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                                     [&::-webkit-slider-thumb]:appearance-none 
+                                     [&::-webkit-slider-thumb]:w-4 
+                                     [&::-webkit-slider-thumb]:h-4 
+                                     [&::-webkit-slider-thumb]:rounded-full 
+                                     [&::-webkit-slider-thumb]:bg-blue-600
+                                     [&::-webkit-slider-thumb]:cursor-pointer
+                                     [&::-webkit-slider-thumb]:shadow-md
+                                     [&::-webkit-slider-thumb]:hover:bg-blue-700
+                                     [&::-moz-range-thumb]:w-4 
+                                     [&::-moz-range-thumb]:h-4 
+                                     [&::-moz-range-thumb]:rounded-full 
+                                     [&::-moz-range-thumb]:bg-blue-600
+                                     [&::-moz-range-thumb]:border-0
+                                     [&::-moz-range-thumb]:cursor-pointer"
+                        />
+                      </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (LKR)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100000"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="50,000,000"
-                    value={filters.maxPrice}
-                    onChange={(e) => {
-                      const value = Math.max(0, parseInt(e.target.value) || 0);
-                      setFilters({...filters, maxPrice: value.toString()});
-                    }}
-                  />
-                </div>
+                      {/* Max Price Slider */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-xs font-medium text-gray-600">Maximum Price</label>
+                          <span className="text-xs font-semibold text-blue-600">{formatPrice(priceRange.max)}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="50000000"
+                          step="500000"
+                          value={priceRange.max}
+                          onChange={(e) => {
+                            const newMax = parseInt(e.target.value);
+                            if (newMax > priceRange.min + 1000000) {
+                              setPriceRange({ ...priceRange, max: newMax });
+                            }
+                          }}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                                     [&::-webkit-slider-thumb]:appearance-none 
+                                     [&::-webkit-slider-thumb]:w-4 
+                                     [&::-webkit-slider-thumb]:h-4 
+                                     [&::-webkit-slider-thumb]:rounded-full 
+                                     [&::-webkit-slider-thumb]:bg-blue-600
+                                     [&::-webkit-slider-thumb]:cursor-pointer
+                                     [&::-webkit-slider-thumb]:shadow-md
+                                     [&::-webkit-slider-thumb]:hover:bg-blue-700
+                                     [&::-moz-range-thumb]:w-4 
+                                     [&::-moz-range-thumb]:h-4 
+                                     [&::-moz-range-thumb]:rounded-full 
+                                     [&::-moz-range-thumb]:bg-blue-600
+                                     [&::-moz-range-thumb]:border-0
+                                     [&::-moz-range-thumb]:cursor-pointer"
+                        />
+                      </div>
 
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quick Price Ranges</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '0', maxPrice: '5000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      Under 5M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '5000000', maxPrice: '15000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      5M - 15M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '15000000', maxPrice: '25000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      15M - 25M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '25000000', maxPrice: ''})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      25M+
-                    </button>
+                      {/* Selected Range Display */}
+                      <div className="text-center py-2 px-3 bg-blue-50 rounded-md border border-blue-100">
+                        <p className="text-xs text-gray-600">Selected Range:</p>
+                        <p className="text-sm font-bold text-blue-700">
+                          {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">
-                  Apply Filters
-                </button>
               </div>
             </div>
           </div>
