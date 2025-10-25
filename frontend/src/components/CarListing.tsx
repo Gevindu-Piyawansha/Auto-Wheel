@@ -548,31 +548,31 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">
             {car.make.toUpperCase()} {car.model.toUpperCase()}
           </h3>
-          <div className="flex items-center text-yellow-400 text-sm">
+          <div className="flex items-center text-yellow-400 text-xs sm:text-sm">
             {"⭐".repeat(car.rating || 5)}
           </div>
         </div>
 
-        <div className="text-sm text-gray-600 mb-2">
+        <div className="text-xs sm:text-sm text-gray-600 mb-2">
           {car.year} • {car.category} • {car.fuelType}
         </div>
 
-        <div className="text-gray-700 text-sm mb-3 line-clamp-2">
+        <div className="text-gray-700 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
           {car.description}
         </div>
 
-        <div className="border-t pt-3 mt-3">
-          <div className="text-center mb-3">
-            <div className="text-lg font-bold text-gray-900">
+        <div className="border-t pt-2 sm:pt-3 mt-2 sm:mt-3">
+          <div className="text-center mb-2 sm:mb-3">
+            <div className="text-base sm:text-lg font-bold text-gray-900">
               {formatPrice(car.price)}
             </div>
             {car.tax && car.tax > 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-xs sm:text-sm text-gray-600">
                 Total: {formatPrice(car.price + car.tax)}
               </div>
             )}
@@ -581,13 +581,13 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           <div className="space-y-2">
             <button
               onClick={() => setSelectedCar(car)}
-              className="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors duration-300 text-sm font-medium"
+              className="w-full bg-gray-600 text-white py-2 px-3 sm:px-4 rounded hover:bg-gray-700 transition-colors duration-300 text-xs sm:text-sm font-medium"
             >
               👁️ View Details
             </button>
             <button
               onClick={() => handleInquiry(car)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-sm font-medium flex items-center justify-center space-x-1"
+              className="w-full bg-blue-600 text-white py-2 px-3 sm:px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-xs sm:text-sm font-medium flex items-center justify-center space-x-1"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Make an Inquiry</span>
@@ -639,25 +639,25 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Filters Sidebar */}
           <div className="lg:w-1/4">
             {/* Filter Toggle Button (Mobile/Tablet) */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden w-full mb-4 bg-blue-600 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+              className="lg:hidden w-full mb-2 bg-blue-600 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors text-sm"
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-4 h-4" />
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
 
             {/* Filters Panel */}
-            <div className={`bg-white rounded-lg shadow-md p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-              <div className="flex items-center justify-between mb-4">
+            <div className={`bg-white rounded-lg shadow-md p-3 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
-                  <Filter className="w-5 h-5 mr-2 text-gray-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                  <Filter className="w-3.5 h-3.5 mr-1.5 text-gray-600" />
+                  <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
                 </div>
                 <button
                   onClick={() => {
@@ -667,17 +667,17 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                     });
                     setPriceRange({ min: 0, max: 50000000 });
                   }}
-                  className="text-xs text-blue-600 hover:text-blue-700"
+                  className="text-[10px] text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Clear All
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Make</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.make}
                     onChange={(e) => setFilters({...filters, make: e.target.value})}
                   >
@@ -697,9 +697,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fuel Type</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Fuel Type</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.fuelType}
                     onChange={(e) => setFilters({...filters, fuelType: e.target.value})}
                   >
@@ -712,9 +712,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.category}
                     onChange={(e) => setFilters({...filters, category: e.target.value})}
                   >
@@ -730,9 +730,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Transmission</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.transmission}
                     onChange={(e) => setFilters({...filters, transmission: e.target.value})}
                   >
@@ -748,25 +748,25 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                       type="checkbox"
                       checked={filters.isHotDeal}
                       onChange={(e) => setFilters({...filters, isHotDeal: e.target.checked})}
-                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">🔥 Hot Deals Only</span>
+                    <span className="text-xs font-medium text-gray-700">🔥 Hot Deals Only</span>
                   </label>
                 </div>
 
                 {/* Price Range Slider - Last */}
-                <div className="pt-2 border-t border-gray-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                <div className="pt-1.5 border-t border-gray-200">
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
                     Price Range
                   </label>
-                  <div className="px-2 pb-2">
+                  <div className="px-1">
                     {/* Simplified Dual Handle Slider */}
-                    <div className="space-y-6 pb-4">
+                    <div className="space-y-2.5">
                       {/* Min Price Slider */}
                       <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="text-xs font-medium text-gray-600">Minimum Price</label>
-                          <span className="text-xs font-semibold text-blue-600">{formatPrice(priceRange.min)}</span>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[10px] font-medium text-gray-600">Min</label>
+                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.min)}</span>
                         </div>
                         <input
                           type="range"
@@ -780,17 +780,17 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                               setPriceRange({ ...priceRange, min: newMin });
                             }
                           }}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
                                      [&::-webkit-slider-thumb]:appearance-none 
-                                     [&::-webkit-slider-thumb]:w-4 
-                                     [&::-webkit-slider-thumb]:h-4 
+                                     [&::-webkit-slider-thumb]:w-3 
+                                     [&::-webkit-slider-thumb]:h-3 
                                      [&::-webkit-slider-thumb]:rounded-full 
                                      [&::-webkit-slider-thumb]:bg-blue-600
                                      [&::-webkit-slider-thumb]:cursor-pointer
                                      [&::-webkit-slider-thumb]:shadow-md
                                      [&::-webkit-slider-thumb]:hover:bg-blue-700
-                                     [&::-moz-range-thumb]:w-4 
-                                     [&::-moz-range-thumb]:h-4 
+                                     [&::-moz-range-thumb]:w-3 
+                                     [&::-moz-range-thumb]:h-3 
                                      [&::-moz-range-thumb]:rounded-full 
                                      [&::-moz-range-thumb]:bg-blue-600
                                      [&::-moz-range-thumb]:border-0
@@ -800,9 +800,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
                       {/* Max Price Slider */}
                       <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="text-xs font-medium text-gray-600">Maximum Price</label>
-                          <span className="text-xs font-semibold text-blue-600">{formatPrice(priceRange.max)}</span>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[10px] font-medium text-gray-600">Max</label>
+                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.max)}</span>
                         </div>
                         <input
                           type="range"
@@ -816,17 +816,17 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                               setPriceRange({ ...priceRange, max: newMax });
                             }
                           }}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
                                      [&::-webkit-slider-thumb]:appearance-none 
-                                     [&::-webkit-slider-thumb]:w-4 
-                                     [&::-webkit-slider-thumb]:h-4 
+                                     [&::-webkit-slider-thumb]:w-3 
+                                     [&::-webkit-slider-thumb]:h-3 
                                      [&::-webkit-slider-thumb]:rounded-full 
                                      [&::-webkit-slider-thumb]:bg-blue-600
                                      [&::-webkit-slider-thumb]:cursor-pointer
                                      [&::-webkit-slider-thumb]:shadow-md
                                      [&::-webkit-slider-thumb]:hover:bg-blue-700
-                                     [&::-moz-range-thumb]:w-4 
-                                     [&::-moz-range-thumb]:h-4 
+                                     [&::-moz-range-thumb]:w-3 
+                                     [&::-moz-range-thumb]:h-3 
                                      [&::-moz-range-thumb]:rounded-full 
                                      [&::-moz-range-thumb]:bg-blue-600
                                      [&::-moz-range-thumb]:border-0
@@ -835,13 +835,20 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                       </div>
 
                       {/* Selected Range Display */}
-                      <div className="text-center py-2 px-3 bg-blue-50 rounded-md border border-blue-100">
-                        <p className="text-xs text-gray-600">Selected Range:</p>
-                        <p className="text-sm font-bold text-blue-700">
+                      <div className="text-center py-1 px-2 bg-blue-50 rounded border border-blue-100">
+                        <p className="text-[9px] text-gray-600">Selected:</p>
+                        <p className="text-[11px] font-bold text-blue-700">
                           {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
                         </p>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Cars Found Count - At the end */}
+                <div className="mt-2.5 pt-2 border-t border-gray-200">
+                  <div className="py-1.5 px-2 bg-blue-50 rounded border border-blue-200 text-center">
+                    <p className="text-xs font-semibold text-blue-700">{sortedCars.length} Cars Found</p>
                   </div>
                 </div>
               </div>
@@ -851,10 +858,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           {/* Car Grid */}
           <div className="lg:w-3/4">
             {!isLoading && (
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-600">{sortedCars.length} cars found</p>
+              <div className="flex items-center justify-end mb-6">
                 <select 
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -869,7 +875,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
 
             {isLoading ? (
               <div className={viewMode === 'grid' ?
-                "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" :
                 "space-y-4"
               }>
                 {Array.from({ length: 6 }).map((_, index) => (
@@ -879,7 +885,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
             ) : (
               <>
                 <div className={viewMode === 'grid' ?
-                  "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                  "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" :
                   "space-y-4"
                 }>
                   {sortedCars.map(car => (

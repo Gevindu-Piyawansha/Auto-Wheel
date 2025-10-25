@@ -3,6 +3,8 @@ import { Settings, LogIn, LogOut, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AutoWheelLogo from './AutoWheelLogo';
 
+// Updated UI optimizations
+
 interface NavigationProps {
   currentView: 'home' | 'admin';
   onViewChange: (view: 'home' | 'admin') => void;
@@ -28,7 +30,7 @@ const Navigation: React.FC<NavigationProps> = ({
           {/* Logo */}
           <div className="flex items-center">
             <div 
-              className="flex-shrink-0 flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
               onClick={() => onViewChange('home')}
               title="Go to Home Page"
             >
@@ -36,7 +38,9 @@ const Navigation: React.FC<NavigationProps> = ({
                 className="h-8 w-8" 
                 onClick={() => onViewChange('home')}
               />
-              <span className="ml-2 text-xl font-bold text-gray-900">Auto-Wheel</span>
+              <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+                AutoWheel
+              </span>
             </div>
           </div>
 
@@ -96,10 +100,10 @@ const Navigation: React.FC<NavigationProps> = ({
             ) : (
               <button
                 onClick={onLoginClick}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                className="flex items-center px-2.5 py-1 text-[11px] font-medium text-gray-600 border border-gray-300 hover:bg-gray-50 rounded transition-colors"
               >
-                <LogIn className="w-4 h-4 mr-1" />
-                Admin Login
+                <LogIn className="w-3 h-3 mr-1" />
+                Admin
               </button>
             )}
           </div>
