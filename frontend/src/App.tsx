@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import CarListing, { Car } from './components/CarListing';
+import SuccessStories from './components/SuccessStories';
 import AdminDashboard from './components/AdminDashboard';
 import LoginModal from './components/LoginModal';
 import AutoWheelLogo from './components/AutoWheelLogo';
@@ -220,7 +221,10 @@ const AppContent: React.FC = () => {
             </div>
           </div>
         ) : currentView === 'home' ? (
-          <CarListing cars={cars} />
+          <>
+            <CarListing cars={cars} />
+            <SuccessStories />
+          </>
         ) : (
           <AdminDashboard
             cars={cars}
