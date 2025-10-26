@@ -347,7 +347,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         </div>
       </div>
     </div>
-  );
+  ); // Removed extra bottom padding/margin from parent container
 
   const InquiryFormModal: React.FC<{ car: Car; onClose: () => void; onSubmit: (inquiry: Inquiry) => void }> = ({ car, onClose, onSubmit }) => {
     const {
@@ -579,7 +579,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen">
       {/* Search and View Controls */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -838,7 +838,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           {/* Car Grid */}
           <div className="lg:w-3/4">
             {!isLoading && (
-              <div className="flex items-center justify-end mb-6">
+              <div className="flex items-center justify-end">
                 <select 
                   className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   value={sortBy}

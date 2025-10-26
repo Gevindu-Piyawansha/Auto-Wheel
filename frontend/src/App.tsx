@@ -222,8 +222,12 @@ const AppContent: React.FC = () => {
           </div>
         ) : currentView === 'home' ? (
           <>
-            <CarListing cars={cars} />
-            <SuccessStories />
+            <div className="mb-0">
+              <CarListing cars={cars} />
+            </div>
+            <div className="mt-0">
+              <SuccessStories />
+            </div>
           </>
         ) : (
           <AdminDashboard

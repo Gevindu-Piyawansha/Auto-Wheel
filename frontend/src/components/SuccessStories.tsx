@@ -111,7 +111,7 @@ export default function SuccessStories() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-4 mb-6 px-2">
+  <div className="w-full max-w-4xl mx-auto mb-6 px-2">
       <div className="mb-4 flex flex-col md:flex-row md:items-center md:gap-6">
         <h2 className="text-2xl md:text-3xl font-bold text-blue-700 mb-2 md:mb-0">Customer Success Stories</h2>
       </div>
