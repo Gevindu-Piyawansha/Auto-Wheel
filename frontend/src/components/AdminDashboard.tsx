@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Car } from './CarListing';
-import { Plus, Edit, Trash2, Save, X, MessageSquare, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, MessageSquare, RefreshCw, Star } from 'lucide-react';
+import AdminSuccessStoryForm from './AdminSuccessStoryForm';
 import { useAuth } from '../context/AuthContext';
 import { uploadCarImage } from '../utils/imageUpload';
 
@@ -22,7 +23,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // All hooks must be called before any conditional returns
   const [isAddingCar, setIsAddingCar] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'cars' | 'inquiries'>('cars');
+  const [activeTab, setActiveTab] = useState<'cars' | 'inquiries' | 'stories'>('cars');
+  const [successStories, setSuccessStories] = useState<Array<{
+    customerName: string;
+    location: string;
+    photo: string | null;
+    description: string;
+  }>>(() => {
+    const raw = localStorage.getItem('successStories');
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  });
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -231,6 +246,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 }`}
               >
                 Inquiries ({inquiries.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('stories')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'stories'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Success Stories <Star className="inline w-4 h-4 ml-1 text-yellow-500" />
               </button>
             </nav>
           </div>
@@ -843,7 +868,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
             </div>
           </>
-        ) : (
+  ) : activeTab === 'inquiries' ? (
           /* Inquiries Management */
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
@@ -1009,6 +1034,63 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </table>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-end mb-2">
+              <button
+                className="text-gray-500 hover:text-red-600 px-3 py-1 rounded border border-gray-300"
+                onClick={() => setActiveTab('stories')}
+              >
+                Close
+              </button>
+            </div>
+            <AdminSuccessStoryForm
+              onAdd={story => {
+                if (story.photo) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    const newStory = { ...story, photo: typeof reader.result === 'string' ? reader.result : null };
+                    setSuccessStories(prev => {
+                      const updated = [...prev, newStory];
+                      localStorage.setItem('successStories', JSON.stringify(updated));
+                      return updated;
+                    });
+                  };
+                  reader.readAsDataURL(story.photo as File);
+                } else {
+                  const newStory = { ...story, photo: null };
+                  setSuccessStories(prev => {
+                    const updated = [...prev, newStory];
+                    localStorage.setItem('successStories', JSON.stringify(updated));
+                    return updated;
+                  });
+                }
+              }}
+            />
+            <div className="mt-8">
+              <h3 className="text-lg font-bold mb-4">Added Success Stories</h3>
+              {successStories.length === 0 ? (
+                <p className="text-gray-500">No stories added yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {successStories.map((story, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg shadow p-4 flex flex-col items-center">
+                      {story.photo && (
+                        <img
+                          src={story.photo}
+                          alt={story.customerName + ' with car'}
+                          className="w-40 h-32 object-cover rounded-lg shadow mb-2"
+                        />
+                      )}
+                      <div className="font-semibold text-lg text-gray-800">{story.customerName}</div>
+                      <div className="text-xs text-gray-500 mb-2">{story.location}</div>
+                      <div className="italic text-gray-700 text-base mb-2">“{story.description}”</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

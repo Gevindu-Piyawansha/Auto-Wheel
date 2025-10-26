@@ -63,6 +63,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   const [inquiryCar, setInquiryCar] = useState<Car | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('default');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 50000000 });
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
@@ -123,13 +126,27 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     const matchesTransmission = filters.transmission === '' || car.transmission === filters.transmission;
     const matchesHotDeal = !filters.isHotDeal || car.isHotDeal;
 
-    const minPrice = parseInt(filters.minPrice) || 0;
-    const maxPrice = parseInt(filters.maxPrice) || Infinity;
-    const matchesPrice = car.price >= minPrice && car.price <= maxPrice;
+    const matchesPrice = car.price >= priceRange.min && car.price <= priceRange.max;
 
     return matchesSearch && matchesMake && matchesFuelType && matchesCategory &&
            matchesEngineCC && matchesVehicleGrade && matchesTransmission &&
            matchesHotDeal && matchesPrice;
+  });
+
+  // Apply sorting
+  const sortedCars = [...filteredCars].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'year-newest':
+        return b.year - a.year;
+      case 'mileage-lowest':
+        return (a.mileage || 0) - (b.mileage || 0);
+      default:
+        return 0;
+    }
   });
 
   const formatPrice = (price: number) => {
@@ -192,55 +209,55 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   };
 
   const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({ car, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b p-3 md:p-4 flex justify-between items-center">
+          <h2 className="text-base md:text-2xl font-bold text-gray-900">
             {car.make.toUpperCase()} {car.model.toUpperCase()} ({car.year})
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full"
+            className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="p-3 md:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {/* Car Image */}
             <div>
               <img
                 src={car.image}
                 alt={`${car.make} ${car.model}`}
-                className="w-full h-96 object-cover rounded-lg shadow-md"
+                className="w-full h-48 md:h-96 object-cover rounded-lg shadow-md"
               />
               {car.isHotDeal && (
-                <div className="mt-2 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold inline-block">
+                <div className="mt-2 bg-orange-500 text-white px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-bold inline-block">
                   🔥 HOT DEAL
                 </div>
               )}
             </div>
 
             {/* Car Details */}
-            <div className="space-y-6">
+            <div className="space-y-3 md:space-y-6">
               {/* Price Information */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Price Information</h3>
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2">Price Information</h3>
                 <div className="space-y-1">
                   <div className="flex justify-between">
-                    <span>Base Price:</span>
-                    <span className="font-bold text-xl">{formatPrice(car.price)}</span>
+                    <span className="text-xs md:text-base">Base Price:</span>
+                    <span className="font-bold text-base md:text-xl">{formatPrice(car.price)}</span>
                   </div>
                   {car.tax && car.tax > 0 && (
                     <>
                       <div className="flex justify-between">
-                        <span>Registration Tax:</span>
-                        <span>{formatPrice(car.tax)}</span>
+                        <span className="text-xs md:text-base">Registration Tax:</span>
+                        <span className="text-xs md:text-base">{formatPrice(car.tax)}</span>
                       </div>
                       <div className="flex justify-between border-t pt-1">
-                        <span className="font-semibold">Total Price:</span>
-                        <span className="font-bold text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
+                        <span className="font-semibold text-xs md:text-base">Total Price:</span>
+                        <span className="font-bold text-base md:text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
                       </div>
                     </>
                   )}
@@ -248,64 +265,64 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               </div>
 
               {/* Basic Specifications */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3">Specifications</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Specifications</h3>
+                <div className="grid grid-cols-2 gap-2 md:gap-4">
                   <div>
-                    <span className="text-gray-600">Make:</span>
-                    <p className="font-medium">{car.make}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Make:</span>
+                    <p className="font-medium text-xs md:text-base">{car.make}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Model:</span>
-                    <p className="font-medium">{car.model}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Model:</span>
+                    <p className="font-medium text-xs md:text-base">{car.model}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Year:</span>
-                    <p className="font-medium">{car.year}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Year:</span>
+                    <p className="font-medium text-xs md:text-base">{car.year}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Category:</span>
-                    <p className="font-medium">{car.category}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Category:</span>
+                    <p className="font-medium text-xs md:text-base">{car.category}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Mileage:</span>
-                    <p className="font-medium">{car.mileage?.toLocaleString() || 0} km</p>
+                    <span className="text-gray-600 text-xs md:text-base">Mileage:</span>
+                    <p className="font-medium text-xs md:text-base">{car.mileage?.toLocaleString() || 0} km</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Fuel Type:</span>
-                    <p className="font-medium">{car.fuelType}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Fuel Type:</span>
+                    <p className="font-medium text-xs md:text-base">{car.fuelType}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Transmission:</span>
-                    <p className="font-medium">{car.transmission}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Transmission:</span>
+                    <p className="font-medium text-xs md:text-base">{car.transmission}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Engine:</span>
-                    <p className="font-medium">{car.engineCC}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Engine:</span>
+                    <p className="font-medium text-xs md:text-base">{car.engineCC}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Grade:</span>
-                    <p className="font-medium">{car.vehicleGrade}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Grade:</span>
+                    <p className="font-medium text-xs md:text-base">{car.vehicleGrade}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Rating:</span>
-                    <p className="font-medium">{"⭐".repeat(car.rating || 5)}</p>
+                    <span className="text-gray-600 text-xs md:text-base">Rating:</span>
+                    <p className="font-medium text-xs md:text-base">{"⭐".repeat(car.rating || 5)}</p>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <p className="text-gray-700">{car.description}</p>
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-700 text-xs md:text-base">{car.description}</p>
               </div>
 
               {/* Features */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3">Features</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Features</h3>
+                <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {car.features.map((feature, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    <span key={index} className="bg-blue-100 text-blue-800 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-sm">
                       {feature}
                     </span>
                   ))}
@@ -313,15 +330,15 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <button
                   onClick={() => handleInquiry(car)}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center space-x-2 font-medium"
+                  className="w-full bg-blue-600 text-white py-2 md:py-3 px-4 md:px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 font-medium text-sm md:text-base"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                   <span>Make an Inquiry</span>
                 </button>
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-[10px] md:text-sm text-gray-600">
                   💰 Leasing Available | 🚚 Free Delivery | 📞 Call for Best Price
                 </div>
               </div>
@@ -330,7 +347,7 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         </div>
       </div>
     </div>
-  );
+  ); // Removed extra bottom padding/margin from parent container
 
   const InquiryFormModal: React.FC<{ car: Car; onClose: () => void; onSubmit: (inquiry: Inquiry) => void }> = ({ car, onClose, onSubmit }) => {
     const {
@@ -519,70 +536,50 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         <img
           src={car.image}
           alt={`${car.make} ${car.model}`}
-          className="w-full h-48 object-cover"
+          className="w-full h-32 md:h-48 object-cover"
         />
         {car.isHotDeal && (
-          <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
-            🔥 HOT DEAL
+          <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-orange-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-bold">
+            🔥 HOT
           </div>
         )}
-        <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">
+        <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-blue-600 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-xs md:text-sm font-semibold">
           {formatPrice(car.price)}
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-gray-900">
+      <div className="p-2 md:p-4">
+        <div className="mb-1 md:mb-2">
+          <h3 className="text-xs md:text-lg font-bold text-gray-900 line-clamp-1">
             {car.make.toUpperCase()} {car.model.toUpperCase()}
           </h3>
-          <div className="flex items-center text-yellow-400 text-sm">
-            {"⭐".repeat(car.rating || 5)}
-          </div>
         </div>
 
-        <div className="text-sm text-gray-600 mb-2">
-          {car.year} • {car.category} • {car.fuelType}
+        <div className="text-[10px] md:text-sm text-gray-600 mb-1 md:mb-2">
+          {car.year} • {car.mileage?.toLocaleString() || 0}km • {car.engineCC}
         </div>
 
-        <div className="text-gray-700 text-sm mb-3 line-clamp-2">
-          {car.description}
-        </div>
-
-        <div className="border-t pt-3 mt-3">
-          <div className="text-center mb-3">
-            <div className="text-lg font-bold text-gray-900">
-              {formatPrice(car.price)}
-            </div>
-            {car.tax && car.tax > 0 && (
-              <div className="text-sm text-gray-600">
-                Total: {formatPrice(car.price + car.tax)}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={() => setSelectedCar(car)}
-              className="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors duration-300 text-sm font-medium"
-            >
-              👁️ View Details
-            </button>
-            <button
-              onClick={() => handleInquiry(car)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-300 text-sm font-medium flex items-center justify-center space-x-1"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Make an Inquiry</span>
-            </button>
-          </div>
+        <div className="space-y-1 md:space-y-2 mt-2">
+          <button
+            onClick={() => setSelectedCar(car)}
+            className="w-full bg-gray-600 text-white py-1 md:py-2 px-2 md:px-4 rounded hover:bg-gray-700 transition-colors text-[10px] md:text-sm font-medium"
+          >
+            👁️ View
+          </button>
+          <button
+            onClick={() => handleInquiry(car)}
+            className="w-full bg-blue-600 text-white py-1 md:py-2 px-2 md:px-4 rounded hover:bg-blue-700 transition-colors text-[10px] md:text-sm font-medium flex items-center justify-center gap-1"
+          >
+            <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
+            <span>Inquire</span>
+          </button>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen">
       {/* Search and View Controls */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -622,21 +619,45 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Filters Sidebar */}
           <div className="lg:w-1/4">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center mb-4">
-                <Filter className="w-5 h-5 mr-2 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            {/* Filter Toggle Button (Mobile/Tablet) */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="lg:hidden w-full mb-2 bg-blue-600 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+
+            {/* Filters Panel */}
+            <div className={`bg-white rounded-lg shadow-md p-3 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <Filter className="w-3.5 h-3.5 mr-1.5 text-gray-600" />
+                  <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
+                </div>
+                <button
+                  onClick={() => {
+                    setFilters({
+                      minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
+                      category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
+                    });
+                    setPriceRange({ min: 0, max: 50000000 });
+                  }}
+                  className="text-[10px] text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Clear All
+                </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Make</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.make}
                     onChange={(e) => setFilters({...filters, make: e.target.value})}
                   >
@@ -656,9 +677,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fuel Type</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Fuel Type</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.fuelType}
                     onChange={(e) => setFilters({...filters, fuelType: e.target.value})}
                   >
@@ -671,9 +692,9 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.category}
                     onChange={(e) => setFilters({...filters, category: e.target.value})}
                   >
@@ -689,36 +710,15 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Engine CC</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Transmission</label>
                   <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    value={filters.engineCC}
-                    onChange={(e) => setFilters({...filters, engineCC: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    value={filters.transmission}
+                    onChange={(e) => setFilters({...filters, transmission: e.target.value})}
                   >
-                    <option value="">All Engines</option>
-                    <option value="660cc">660cc</option>
-                    <option value="1000cc">1000cc</option>
-                    <option value="1200cc">1200cc</option>
-                    <option value="1500cc">1500cc</option>
-                    <option value="1800cc">1800cc</option>
-                    <option value="2000cc">2000cc</option>
-                    <option value="2500cc">2500cc+</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Grade</label>
-                  <select
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    value={filters.vehicleGrade}
-                    onChange={(e) => setFilters({...filters, vehicleGrade: e.target.value})}
-                  >
-                    <option value="">All Grades</option>
-                    <option value="L">L Grade</option>
-                    <option value="G">G Grade</option>
-                    <option value="X">X Grade</option>
-                    <option value="S">S Grade</option>
-                    <option value="Z">Z Grade</option>
+                    <option value="">All Types</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
                   </select>
                 </div>
 
@@ -728,77 +728,109 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
                       type="checkbox"
                       checked={filters.isHotDeal}
                       onChange={(e) => setFilters({...filters, isHotDeal: e.target.checked})}
-                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">🔥 Hot Deals Only</span>
+                    <span className="text-xs font-medium text-gray-700">🔥 Hot Deals Only</span>
                   </label>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Price (LKR)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100000"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="1,000,000"
-                    value={filters.minPrice}
-                    onChange={(e) => {
-                      const value = Math.max(0, parseInt(e.target.value) || 0);
-                      setFilters({...filters, minPrice: value.toString()});
-                    }}
-                  />
-                </div>
+                {/* Price Range Slider - Last */}
+                <div className="pt-1.5 border-t border-gray-200">
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                    Price Range
+                  </label>
+                  <div className="px-1">
+                    {/* Simplified Dual Handle Slider */}
+                    <div className="space-y-2.5">
+                      {/* Min Price Slider */}
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[10px] font-medium text-gray-600">Min</label>
+                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.min)}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="50000000"
+                          step="500000"
+                          value={priceRange.min}
+                          onChange={(e) => {
+                            const newMin = parseInt(e.target.value);
+                            if (newMin < priceRange.max - 1000000) {
+                              setPriceRange({ ...priceRange, min: newMin });
+                            }
+                          }}
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                                     [&::-webkit-slider-thumb]:appearance-none 
+                                     [&::-webkit-slider-thumb]:w-3 
+                                     [&::-webkit-slider-thumb]:h-3 
+                                     [&::-webkit-slider-thumb]:rounded-full 
+                                     [&::-webkit-slider-thumb]:bg-blue-600
+                                     [&::-webkit-slider-thumb]:cursor-pointer
+                                     [&::-webkit-slider-thumb]:shadow-md
+                                     [&::-webkit-slider-thumb]:hover:bg-blue-700
+                                     [&::-moz-range-thumb]:w-3 
+                                     [&::-moz-range-thumb]:h-3 
+                                     [&::-moz-range-thumb]:rounded-full 
+                                     [&::-moz-range-thumb]:bg-blue-600
+                                     [&::-moz-range-thumb]:border-0
+                                     [&::-moz-range-thumb]:cursor-pointer"
+                        />
+                      </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Price (LKR)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100000"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="50,000,000"
-                    value={filters.maxPrice}
-                    onChange={(e) => {
-                      const value = Math.max(0, parseInt(e.target.value) || 0);
-                      setFilters({...filters, maxPrice: value.toString()});
-                    }}
-                  />
-                </div>
+                      {/* Max Price Slider */}
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[10px] font-medium text-gray-600">Max</label>
+                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.max)}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="50000000"
+                          step="500000"
+                          value={priceRange.max}
+                          onChange={(e) => {
+                            const newMax = parseInt(e.target.value);
+                            if (newMax > priceRange.min + 1000000) {
+                              setPriceRange({ ...priceRange, max: newMax });
+                            }
+                          }}
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600
+                                     [&::-webkit-slider-thumb]:appearance-none 
+                                     [&::-webkit-slider-thumb]:w-3 
+                                     [&::-webkit-slider-thumb]:h-3 
+                                     [&::-webkit-slider-thumb]:rounded-full 
+                                     [&::-webkit-slider-thumb]:bg-blue-600
+                                     [&::-webkit-slider-thumb]:cursor-pointer
+                                     [&::-webkit-slider-thumb]:shadow-md
+                                     [&::-webkit-slider-thumb]:hover:bg-blue-700
+                                     [&::-moz-range-thumb]:w-3 
+                                     [&::-moz-range-thumb]:h-3 
+                                     [&::-moz-range-thumb]:rounded-full 
+                                     [&::-moz-range-thumb]:bg-blue-600
+                                     [&::-moz-range-thumb]:border-0
+                                     [&::-moz-range-thumb]:cursor-pointer"
+                        />
+                      </div>
 
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quick Price Ranges</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '0', maxPrice: '5000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      Under 5M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '5000000', maxPrice: '15000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      5M - 15M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '15000000', maxPrice: '25000000'})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      15M - 25M
-                    </button>
-                    <button
-                      onClick={() => setFilters({...filters, minPrice: '25000000', maxPrice: ''})}
-                      className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700"
-                    >
-                      25M+
-                    </button>
+                      {/* Selected Range Display */}
+                      <div className="text-center py-1 px-2 bg-blue-50 rounded border border-blue-100">
+                        <p className="text-[9px] text-gray-600">Selected:</p>
+                        <p className="text-[11px] font-bold text-blue-700">
+                          {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">
-                  Apply Filters
-                </button>
+                {/* Cars Found Count - At the end */}
+                <div className="mt-2.5 pt-2 border-t border-gray-200">
+                  <div className="py-1.5 px-2 bg-blue-50 rounded border border-blue-200 text-center">
+                    <p className="text-xs font-semibold text-blue-700">{sortedCars.length} Cars Found</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -806,20 +838,24 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
           {/* Car Grid */}
           <div className="lg:w-3/4">
             {!isLoading && (
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-600">{filteredCars.length} cars found</p>
-                <select className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                  <option>Sort by: Price (Low to High)</option>
-                  <option>Sort by: Price (High to Low)</option>
-                  <option>Sort by: Year (Newest)</option>
-                  <option>Sort by: Mileage (Lowest)</option>
+              <div className="flex items-center justify-end">
+                <select 
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="default">Sort by: Default</option>
+                  <option value="price-low">Sort by: Price (Low to High)</option>
+                  <option value="price-high">Sort by: Price (High to Low)</option>
+                  <option value="year-newest">Sort by: Year (Newest)</option>
+                  <option value="mileage-lowest">Sort by: Mileage (Lowest)</option>
                 </select>
               </div>
             )}
 
             {isLoading ? (
               <div className={viewMode === 'grid' ?
-                "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
                 "space-y-4"
               }>
                 {Array.from({ length: 6 }).map((_, index) => (
@@ -829,15 +865,15 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
             ) : (
               <>
                 <div className={viewMode === 'grid' ?
-                  "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" :
+                  "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
                   "space-y-4"
                 }>
-                  {filteredCars.map(car => (
+                  {sortedCars.map(car => (
                     <CarCard key={car.id} car={car} />
                   ))}
                 </div>
 
-                {filteredCars.length === 0 && (
+                {sortedCars.length === 0 && (
                   <div className="text-center py-12">
                     <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
                     <button
