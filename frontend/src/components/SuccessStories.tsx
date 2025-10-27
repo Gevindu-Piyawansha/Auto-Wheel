@@ -48,17 +48,27 @@ const StoryCard = ({ story }: { story: Story }) => (
   </motion.div>
 );
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://your-backend-url/api/success-stories"; // Replace with your actual backend URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-api.onrender.com";
+const API_SUCCESS_STORIES_URL = `${API_BASE_URL}/api/success-stories`;
 
 export default function SuccessStories() {
   const [stories, setStories] = useState<Story[]>([]);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    fetch(API_BASE_URL)
-      .then(res => res.json())
-      .then(data => setStories(Array.isArray(data) ? data : []))
-      .catch(() => setStories([]));
+    fetch(API_SUCCESS_STORIES_URL)
+      .then(res => {
+        console.log('SuccessStories API raw response:', res);
+        return res.json();
+      })
+      .then(data => {
+        console.log('API /api/successstories response:', data);
+        setStories(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error('Error fetching success stories:', err);
+        setStories([]);
+      });
   }, []);
 
   if (stories.length === 0) {

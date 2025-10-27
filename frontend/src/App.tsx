@@ -226,7 +226,7 @@ const AppContent: React.FC = () => {
               <SuccessStories />
             </div>
             <div className="mt-0">
-              <CarListing cars={cars} />
+              <CarListing />
             </div>
           </>
         ) : (

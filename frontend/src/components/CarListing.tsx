@@ -49,11 +49,10 @@ export interface Car {
   rating?: number;
 }
 
-interface CarListingProps {
-  cars: Car[];
-}
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-api.onrender.com";
 
-const CarListing: React.FC<CarListingProps> = ({ cars }) => {
+const CarListing: React.FC = () => {
+  const [cars, setCars] = useState<Car[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -78,6 +77,22 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
     transmission: '',
     isHotDeal: false
   });
+
+  // Fetch cars from backend API
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(`${API_BASE_URL}/api/cars`)
+      .then(res => res.json())
+      .then(data => {
+        console.log('API /api/cars response:', data);
+        setCars(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error('Error fetching cars:', err);
+        setCars([]);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
 
   // Load inquiries from localStorage on component mount
   useEffect(() => {
@@ -110,27 +125,8 @@ const CarListing: React.FC<CarListingProps> = ({ cars }) => {
   }, [searchTerm, debouncedSearchTerm]);
 
   const filteredCars = cars.filter(car => {
-    const matchesSearch = (
-      car.make.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      car.model.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      car.location.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      car.category?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      car.engineCC?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-    );
-
-    const matchesMake = filters.make === '' || car.make === filters.make;
-    const matchesFuelType = filters.fuelType === '' || car.fuelType === filters.fuelType;
-    const matchesCategory = filters.category === '' || car.category === filters.category;
-    const matchesEngineCC = filters.engineCC === '' || car.engineCC === filters.engineCC;
-    const matchesVehicleGrade = filters.vehicleGrade === '' || car.vehicleGrade === filters.vehicleGrade;
-    const matchesTransmission = filters.transmission === '' || car.transmission === filters.transmission;
-    const matchesHotDeal = !filters.isHotDeal || car.isHotDeal;
-
-    const matchesPrice = car.price >= priceRange.min && car.price <= priceRange.max;
-
-    return matchesSearch && matchesMake && matchesFuelType && matchesCategory &&
-           matchesEngineCC && matchesVehicleGrade && matchesTransmission &&
-           matchesHotDeal && matchesPrice;
+    // DEBUG: Show all cars, ignore filters
+    return true;
   });
 
   // Apply sorting

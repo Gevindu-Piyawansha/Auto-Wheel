@@ -12,7 +12,7 @@ public class CarsController(AutoWheelDbContext db) : ControllerBase
     // GET: api/cars
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Car>>> GetCars()
-        => await db.Cars.AsNoTracking().ToListAsync();
+        => await db.Cars.AsNoTracking() .OrderByDescending(c => c.Id) .ToListAsync();
 
     // GET: api/cars/5
     [HttpGet("{id:int}")]
