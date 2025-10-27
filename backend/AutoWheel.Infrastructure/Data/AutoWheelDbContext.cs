@@ -11,6 +11,7 @@ public class AutoWheelDbContext : DbContext
 
     public DbSet<Car> Cars => Set<Car>();
     public DbSet<Inquiry> Inquiries => Set<Inquiry>();
+    public DbSet<SuccessStory> SuccessStories => Set<SuccessStory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,14 @@ public class AutoWheelDbContext : DbContext
             entity.Property(i => i.PreferredContactMethod).HasMaxLength(50);
             entity.Property(i => i.CarPrice).HasColumnType("decimal(18,2)");
             entity.Property(i => i.Status).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<SuccessStory>(entity =>
+        {
+            entity.Property(s => s.CustomerName).HasMaxLength(200);
+            entity.Property(s => s.Location).HasMaxLength(100);
+            entity.Property(s => s.Photo).HasMaxLength(2048);
+            entity.Property(s => s.Description).HasMaxLength(2000);
         });
     }
 }
