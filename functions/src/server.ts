@@ -178,6 +178,63 @@ app.get('/api/inquiries', async (_req: Request, res: Response) => {
   }
 });
 
+// GET /api/successstories - Get all success stories
+app.get('/api/successstories', async (_req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    const stories = await db.collection('SuccessStories').find({}).sort({ createdAt: -1 }).toArray();
+    return res.json(stories);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to fetch success stories' });
+  }
+});
+
+// POST /api/successstories - Create new success story
+app.post('/api/successstories', async (req: Request, res: Response) => {
+  try {
+    const story = req.body;
+    console.log('Received success story:', story);
+    
+    // Validate required fields
+    if (!story.customerName || !story.location || !story.photo || !story.description) {
+      console.error('Validation failed. Missing fields');
+      return res.status(400).json({ error: 'Missing required fields: customerName, location, photo, and description are required' });
+    }
+    
+    const db = await getDb();
+    const result = await db.collection('SuccessStories').insertOne({
+      ...story,
+      createdAt: new Date()
+    });
+    
+    console.log('Success story created:', result.insertedId);
+    return res.status(201).json({ id: result.insertedId, ...story });
+  } catch (err) {
+    console.error('Error creating success story:', err);
+    return res.status(500).json({ error: 'Failed to create success story' });
+  }
+});
+
+// DELETE /api/successstories/:id - Delete success story
+app.delete('/api/successstories/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const db = await getDb();
+    
+    const result = await db.collection('SuccessStories').deleteOne({ _id: new ObjectId(id) });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Success story not found' });
+    }
+    
+    return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to delete success story' });
+  }
+});
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Auto-Wheel API listening on port ${PORT}`);
