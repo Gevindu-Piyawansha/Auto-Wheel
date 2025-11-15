@@ -37,7 +37,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-app.UseAuthorization();
 app.MapControllers();
 
 // Auto-migrate database on startup
