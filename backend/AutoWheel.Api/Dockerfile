@@ -5,9 +5,12 @@ WORKDIR /src
 # Copy everything
 COPY . .
 
+# Debug: List files to see what was copied
+RUN ls -la
+
 # Restore and publish
-RUN dotnet restore "AutoWheel.Api.csproj"
-RUN dotnet publish "AutoWheel.Api.csproj" -c Release -o /app/publish
+RUN dotnet restore
+RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
