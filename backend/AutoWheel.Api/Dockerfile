@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy everything
+# Copy entire repository
 COPY . .
 
-# Debug: List files to see what was copied
-RUN ls -la
+# Change to the project directory
+WORKDIR /src/backend/AutoWheel.Api
 
 # Restore and publish
 RUN dotnet restore
