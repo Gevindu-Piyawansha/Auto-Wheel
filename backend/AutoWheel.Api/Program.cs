@@ -21,13 +21,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // CORS for frontend
-var allowedOrigin = builder.Configuration.GetValue<string>("Cors:FrontendOrigin") ?? "http://localhost:3000";
+var allowedOrigins = builder.Configuration.GetValue<string>("Cors:FrontendOrigin")?.Split(',') 
+    ?? new[] { "http://localhost:3000", "https://auto-wheel-sl.web.app" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
-        policy.WithOrigins(allowedOrigin)
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 // EF Core DbContext
