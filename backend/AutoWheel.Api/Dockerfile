@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project file and restore
-COPY AutoWheel.Api.csproj .
+COPY *.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
-COPY . .
+COPY . ./
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
