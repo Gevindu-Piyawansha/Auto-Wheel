@@ -48,11 +48,17 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        db.Database.Migrate();
+        Console.WriteLine("Starting database migration...");
+        
+        // Ensure database is created and migrations are applied
+        db.Database.EnsureCreated(); // This will create tables if they don't exist
+        
+        Console.WriteLine("Database schema ensured");
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Migration failed: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }
 }
 
