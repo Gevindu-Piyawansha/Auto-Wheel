@@ -49,10 +49,17 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine("Starting database setup...");
         
-        // Force recreate database with new schema
-        Console.WriteLine("Deleting old database to apply new schema...");
-        db.Database.EnsureDeleted();
-        Console.WriteLine("Creating database with new schema...");
+        // Drop all tables and recreate with new schema
+        Console.WriteLine("Recreating database schema...");
+        var sqlDropTables = @"
+            DROP TABLE IF EXISTS ""Cars"" CASCADE;
+            DROP TABLE IF EXISTS ""Inquiries"" CASCADE;
+            DROP TABLE IF EXISTS ""SuccessStories"" CASCADE;
+        ";
+        db.Database.ExecuteSqlRaw(sqlDropTables);
+        Console.WriteLine("Old tables dropped.");
+        
+        // Create tables with new schema
         db.Database.EnsureCreated();
         Console.WriteLine("Database and tables created successfully with new schema.");
         
