@@ -19,7 +19,17 @@ public class CarsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Car>>> GetCars()
     {
-        return await _context.Cars.OrderByDescending(c => c.CreatedAt).ToListAsync();
+        try
+        {
+            var cars = await _context.Cars.OrderByDescending(c => c.CreatedAt).ToListAsync();
+            return Ok(cars);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching cars: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { error = ex.Message, type = ex.GetType().Name });
+        }
     }
 
     [HttpGet("{id}")]
