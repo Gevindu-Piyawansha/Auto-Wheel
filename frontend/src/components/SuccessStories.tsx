@@ -50,7 +50,7 @@ const StoryCard = ({ story }: { story: Story }) => (
 );
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-api.onrender.com";
+  process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-1.onrender.com";
 const API_SUCCESS_STORIES_URL = `${API_BASE_URL}/api/successstories`;
 
 export default function SuccessStories() {

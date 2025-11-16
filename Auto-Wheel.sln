@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoWheel.Api", "backend\AutoWheel.Api\AutoWheel.Api.csproj", "{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B6E6033B-D600-783F-FA8C-4BF5DE25B6B3} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3205EA3-185A-4339-A4CF-AF273464B50D}
+	EndGlobalSection
+EndGlobal

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Grid, List, X, MessageCircle } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { inquiryFormSchema, type InquiryFormData } from '../validation/inquirySchema';
-import { CarCardSkeleton } from './Skeleton';
-import { useDebounce } from '../hooks';
+import React, { useState, useEffect } from "react";
+import { Search, Filter, Grid, List, X, MessageCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  inquiryFormSchema,
+  type InquiryFormData,
+} from "../validation/inquirySchema";
+import { CarCardSkeleton } from "./Skeleton";
+import { useDebounce } from "../hooks";
 
 export interface Inquiry {
   id: string;
@@ -16,12 +19,12 @@ export interface Inquiry {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-    customerLocation: string;
+  customerLocation: string;
   customerMessage: string;
-  inquiryType: 'general' | 'price' | 'test_drive' | 'financing' | 'trade_in';
-  preferredContactMethod: 'whatsapp' | 'phone' | 'email';
+  inquiryType: "general" | "price" | "test_drive" | "financing" | "trade_in";
+  preferredContactMethod: "whatsapp" | "phone" | "email";
   timestamp: string;
-  status: 'open' | 'contacted' | 'in_progress' | 'solved' | 'closed';
+  status: "open" | "contacted" | "in_progress" | "solved" | "closed";
   adminNotes?: string;
   followUpDate?: string;
 }
@@ -49,46 +52,47 @@ export interface Car {
   rating?: number;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-api.onrender.com";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-1.onrender.com";
 
 const CarListing: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [inquiryCar, setInquiryCar] = useState<Car | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [sortBy, setSortBy] = useState<string>('default');
+  const [sortBy, setSortBy] = useState<string>("default");
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 50000000 });
   const [filters, setFilters] = useState({
-    minPrice: '',
-    maxPrice: '',
-    make: '',
-    year: '',
-    fuelType: '',
-    category: '',
-    engineCC: '',
-    vehicleGrade: '',
-    transmission: '',
-    isHotDeal: false
+    minPrice: "",
+    maxPrice: "",
+    make: "",
+    year: "",
+    fuelType: "",
+    category: "",
+    engineCC: "",
+    vehicleGrade: "",
+    transmission: "",
+    isHotDeal: false,
   });
 
   // Fetch cars from backend API
   useEffect(() => {
     setIsLoading(true);
     fetch(`${API_BASE_URL}/api/cars`)
-      .then(res => res.json())
-      .then(data => {
-        console.log('API /api/cars response:', data);
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("API /api/cars response:", data);
         setCars(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
-        console.error('Error fetching cars:', err);
+        console.error("Error fetching cars:", err);
         setCars([]);
       })
       .finally(() => setIsLoading(false));
@@ -96,13 +100,13 @@ const CarListing: React.FC = () => {
 
   // Load inquiries from localStorage on component mount
   useEffect(() => {
-    const savedInquiries = localStorage.getItem('carInquiries');
+    const savedInquiries = localStorage.getItem("carInquiries");
     if (savedInquiries) {
       try {
         const parsedInquiries = JSON.parse(savedInquiries);
         setInquiries(parsedInquiries);
       } catch (error) {
-        console.error('Error loading inquiries from localStorage:', error);
+        console.error("Error loading inquiries from localStorage:", error);
       }
     }
   }, []);
@@ -124,7 +128,7 @@ const CarListing: React.FC = () => {
     }
   }, [searchTerm, debouncedSearchTerm]);
 
-  const filteredCars = cars.filter(car => {
+  const filteredCars = cars.filter((car) => {
     // DEBUG: Show all cars, ignore filters
     return true;
   });
@@ -132,13 +136,13 @@ const CarListing: React.FC = () => {
   // Apply sorting
   const sortedCars = [...filteredCars].sort((a, b) => {
     switch (sortBy) {
-      case 'price-low':
+      case "price-low":
         return a.price - b.price;
-      case 'price-high':
+      case "price-high":
         return b.price - a.price;
-      case 'year-newest':
+      case "year-newest":
         return b.year - a.year;
-      case 'mileage-lowest':
+      case "mileage-lowest":
         return (a.mileage || 0) - (b.mileage || 0);
       default:
         return 0;
@@ -146,10 +150,10 @@ const CarListing: React.FC = () => {
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-LK', {
-      style: 'currency',
-      currency: 'LKR',
-      minimumFractionDigits: 0
+    return new Intl.NumberFormat("en-LK", {
+      style: "currency",
+      currency: "LKR",
+      minimumFractionDigits: 0,
     }).format(price);
   };
 
@@ -159,52 +163,70 @@ const CarListing: React.FC = () => {
   };
 
   const handleInquirySubmit = (inquiry: Inquiry) => {
-    console.log('Submitting inquiry:', inquiry);
-    
+    console.log("Submitting inquiry:", inquiry);
+
     // Save inquiry to local state
     const updatedInquiries = [...inquiries, inquiry];
     setInquiries(updatedInquiries);
 
     // Save to localStorage for persistence
     try {
-      localStorage.setItem('carInquiries', JSON.stringify(updatedInquiries));
-      console.log('Saved to localStorage. Total inquiries:', updatedInquiries.length);
-      
+      localStorage.setItem("carInquiries", JSON.stringify(updatedInquiries));
+      console.log(
+        "Saved to localStorage. Total inquiries:",
+        updatedInquiries.length
+      );
+
       // Verify it was saved
-      const saved = localStorage.getItem('carInquiries');
-      console.log('Verification - localStorage has:', saved ? JSON.parse(saved).length : 0, 'inquiries');
-      
+      const saved = localStorage.getItem("carInquiries");
+      console.log(
+        "Verification - localStorage has:",
+        saved ? JSON.parse(saved).length : 0,
+        "inquiries"
+      );
+
       // Dispatch custom event to notify other components
-      window.dispatchEvent(new Event('inquiriesUpdated'));
-      console.log('Dispatched inquiriesUpdated event');
+      window.dispatchEvent(new Event("inquiriesUpdated"));
+      console.log("Dispatched inquiriesUpdated event");
     } catch (error) {
-      console.error('Error saving inquiry to localStorage:', error);
-      alert('⚠️ Error saving inquiry. Please try again.');
+      console.error("Error saving inquiry to localStorage:", error);
+      alert("⚠️ Error saving inquiry. Please try again.");
       return;
     }
 
     // Create WhatsApp message based on inquiry details
-    let message = `Hi! I'm interested in the ${inquiry.carMake} ${inquiry.carModel} (${inquiry.carYear}) priced at ${formatPrice(inquiry.carPrice)}.\n\n`;
+    let message = `Hi! I'm interested in the ${inquiry.carMake} ${
+      inquiry.carModel
+    } (${inquiry.carYear}) priced at ${formatPrice(inquiry.carPrice)}.\n\n`;
     message += `Customer Details:\n`;
     message += `Name: ${inquiry.customerName}\n`;
     message += `Email: ${inquiry.customerEmail}\n`;
     message += `Phone: ${inquiry.customerPhone}\n`;
-    message += `Inquiry Type: ${inquiry.inquiryType.replace('_', ' ').toUpperCase()}\n`;
+    message += `Inquiry Type: ${inquiry.inquiryType
+      .replace("_", " ")
+      .toUpperCase()}\n`;
     if (inquiry.customerMessage) {
       message += `\nMessage: ${inquiry.customerMessage}\n`;
     }
     message += `\nPlease contact me via ${inquiry.preferredContactMethod.toUpperCase()}.`;
 
-    const whatsappUrl = `https://wa.me/94777444976?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/94777444976?text=${encodeURIComponent(
+      message
+    )}`;
 
     // Open WhatsApp
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, "_blank");
 
     // Show success message
-    alert('✅ Inquiry submitted successfully! Your inquiry has been saved and will be reviewed by our team.');
+    alert(
+      "✅ Inquiry submitted successfully! Your inquiry has been saved and will be reviewed by our team."
+    );
   };
 
-  const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({ car, onClose }) => (
+  const CarDetailModal: React.FC<{ car: Car; onClose: () => void }> = ({
+    car,
+    onClose,
+  }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b p-3 md:p-4 flex justify-between items-center">
@@ -239,21 +261,33 @@ const CarListing: React.FC = () => {
             <div className="space-y-3 md:space-y-6">
               {/* Price Information */}
               <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
-                <h3 className="text-sm md:text-lg font-semibold mb-2">Price Information</h3>
+                <h3 className="text-sm md:text-lg font-semibold mb-2">
+                  Price Information
+                </h3>
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-xs md:text-base">Base Price:</span>
-                    <span className="font-bold text-base md:text-xl">{formatPrice(car.price)}</span>
+                    <span className="font-bold text-base md:text-xl">
+                      {formatPrice(car.price)}
+                    </span>
                   </div>
                   {car.tax && car.tax > 0 && (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-xs md:text-base">Registration Tax:</span>
-                        <span className="text-xs md:text-base">{formatPrice(car.tax)}</span>
+                        <span className="text-xs md:text-base">
+                          Registration Tax:
+                        </span>
+                        <span className="text-xs md:text-base">
+                          {formatPrice(car.tax)}
+                        </span>
                       </div>
                       <div className="flex justify-between border-t pt-1">
-                        <span className="font-semibold text-xs md:text-base">Total Price:</span>
-                        <span className="font-bold text-base md:text-xl text-blue-600">{formatPrice(car.price + car.tax)}</span>
+                        <span className="font-semibold text-xs md:text-base">
+                          Total Price:
+                        </span>
+                        <span className="font-bold text-base md:text-xl text-blue-600">
+                          {formatPrice(car.price + car.tax)}
+                        </span>
                       </div>
                     </>
                   )}
@@ -262,63 +296,114 @@ const CarListing: React.FC = () => {
 
               {/* Basic Specifications */}
               <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
-                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Specifications</h3>
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">
+                  Specifications
+                </h3>
                 <div className="grid grid-cols-2 gap-2 md:gap-4">
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Make:</span>
-                    <p className="font-medium text-xs md:text-base">{car.make}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Make:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.make}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Model:</span>
-                    <p className="font-medium text-xs md:text-base">{car.model}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Model:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.model}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Year:</span>
-                    <p className="font-medium text-xs md:text-base">{car.year}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Year:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.year}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Category:</span>
-                    <p className="font-medium text-xs md:text-base">{car.category}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Category:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.category}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Mileage:</span>
-                    <p className="font-medium text-xs md:text-base">{car.mileage?.toLocaleString() || 0} km</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Mileage:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.mileage?.toLocaleString() || 0} km
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Fuel Type:</span>
-                    <p className="font-medium text-xs md:text-base">{car.fuelType}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Fuel Type:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.fuelType}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Transmission:</span>
-                    <p className="font-medium text-xs md:text-base">{car.transmission}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Transmission:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.transmission}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Engine:</span>
-                    <p className="font-medium text-xs md:text-base">{car.engineCC}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Engine:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.engineCC}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Grade:</span>
-                    <p className="font-medium text-xs md:text-base">{car.vehicleGrade}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Grade:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {car.vehicleGrade}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600 text-xs md:text-base">Rating:</span>
-                    <p className="font-medium text-xs md:text-base">{"⭐".repeat(car.rating || 5)}</p>
+                    <span className="text-gray-600 text-xs md:text-base">
+                      Rating:
+                    </span>
+                    <p className="font-medium text-xs md:text-base">
+                      {"⭐".repeat(car.rating || 5)}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
               <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
-                <h3 className="text-sm md:text-lg font-semibold mb-2">Description</h3>
-                <p className="text-gray-700 text-xs md:text-base">{car.description}</p>
+                <h3 className="text-sm md:text-lg font-semibold mb-2">
+                  Description
+                </h3>
+                <p className="text-gray-700 text-xs md:text-base">
+                  {car.description}
+                </p>
               </div>
 
               {/* Features */}
               <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
-                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Features</h3>
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">
+                  Features
+                </h3>
                 <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {car.features.map((feature, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-sm">
+                    <span
+                      key={index}
+                      className="bg-blue-100 text-blue-800 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-sm"
+                    >
                       {feature}
                     </span>
                   ))}
@@ -335,7 +420,8 @@ const CarListing: React.FC = () => {
                   <span>Make an Inquiry</span>
                 </button>
                 <div className="text-center text-[10px] md:text-sm text-gray-600">
-                  💰 Leasing Available | 🚚 Free Delivery | 📞 Call for Best Price
+                  💰 Leasing Available | 🚚 Free Delivery | 📞 Call for Best
+                  Price
                 </div>
               </div>
             </div>
@@ -345,7 +431,11 @@ const CarListing: React.FC = () => {
     </div>
   ); // Removed extra bottom padding/margin from parent container
 
-  const InquiryFormModal: React.FC<{ car: Car; onClose: () => void; onSubmit: (inquiry: Inquiry) => void }> = ({ car, onClose, onSubmit }) => {
+  const InquiryFormModal: React.FC<{
+    car: Car;
+    onClose: () => void;
+    onSubmit: (inquiry: Inquiry) => void;
+  }> = ({ car, onClose, onSubmit }) => {
     const {
       register,
       handleSubmit,
@@ -353,8 +443,8 @@ const CarListing: React.FC = () => {
     } = useForm<InquiryFormData>({
       resolver: zodResolver(inquiryFormSchema),
       defaultValues: {
-        inquiryType: 'general',
-        preferredContactMethod: 'whatsapp',
+        inquiryType: "general",
+        preferredContactMethod: "whatsapp",
       },
     });
 
@@ -369,12 +459,13 @@ const CarListing: React.FC = () => {
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,
-    customerLocation: data.customerLocation,
+        customerLocation: data.customerLocation,
         customerMessage: data.customerMessage,
-        inquiryType: data.inquiryType as Inquiry['inquiryType'],
-        preferredContactMethod: data.preferredContactMethod as Inquiry['preferredContactMethod'],
+        inquiryType: data.inquiryType as Inquiry["inquiryType"],
+        preferredContactMethod:
+          data.preferredContactMethod as Inquiry["preferredContactMethod"],
         timestamp: new Date().toISOString(),
-        status: 'open'
+        status: "open",
       };
 
       onSubmit(inquiry);
@@ -386,7 +477,9 @@ const CarListing: React.FC = () => {
         <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Make an Inquiry</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Make an Inquiry
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full"
@@ -397,75 +490,99 @@ const CarListing: React.FC = () => {
 
             {/* Car Info Summary */}
             <div className="bg-gray-50 p-3 rounded-lg mb-4">
-              <h3 className="font-semibold text-gray-900">{car.make} {car.model} ({car.year})</h3>
-              <p className="text-lg font-bold text-blue-600">{formatPrice(car.price)}</p>
+              <h3 className="font-semibold text-gray-900">
+                {car.make} {car.model} ({car.year})
+              </h3>
+              <p className="text-lg font-bold text-blue-600">
+                {formatPrice(car.price)}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name *
+                </label>
                 <input
                   type="text"
-                  {...register('customerName')}
+                  {...register("customerName")}
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
-                    errors.customerName ? 'border-red-500' : 'border-gray-300'
+                    errors.customerName ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your full name"
                 />
                 {errors.customerName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.customerName.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.customerName.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address *
+                </label>
                 <input
                   type="email"
-                  {...register('customerEmail')}
+                  {...register("customerEmail")}
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
-                    errors.customerEmail ? 'border-red-500' : 'border-gray-300'
+                    errors.customerEmail ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="your.email@example.com"
                 />
                 {errors.customerEmail && (
-                  <p className="mt-1 text-sm text-red-600">{errors.customerEmail.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.customerEmail.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number *
+                </label>
                 <input
                   type="tel"
-                  {...register('customerPhone')}
+                  {...register("customerPhone")}
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
-                    errors.customerPhone ? 'border-red-500' : 'border-gray-300'
+                    errors.customerPhone ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="+94 77 123 4567 (or any international number)"
                 />
                 {errors.customerPhone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.customerPhone.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.customerPhone.message}
+                  </p>
                 )}
               </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Location *</label>
-                  <input
-                    type="text"
-                    {...register('customerLocation')}
-                    className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
-                      errors.customerLocation ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="e.g., Colombo, Kandy, Galle"
-                  />
-                  {errors.customerLocation && (
-                    <p className="mt-1 text-sm text-red-600">{errors.customerLocation.message}</p>
-                  )}
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Location *
+                </label>
+                <input
+                  type="text"
+                  {...register("customerLocation")}
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
+                    errors.customerLocation
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="e.g., Colombo, Kandy, Galle"
+                />
+                {errors.customerLocation && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.customerLocation.message}
+                  </p>
+                )}
+              </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Inquiry Type
+                </label>
                 <select
-                  {...register('inquiryType')}
+                  {...register("inquiryType")}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="general">General Information</option>
@@ -477,9 +594,11 @@ const CarListing: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Contact Method</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Preferred Contact Method
+                </label>
                 <select
-                  {...register('preferredContactMethod')}
+                  {...register("preferredContactMethod")}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="whatsapp">WhatsApp</option>
@@ -489,17 +608,23 @@ const CarListing: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Additional Message *
+                </label>
                 <textarea
-                  {...register('customerMessage')}
+                  {...register("customerMessage")}
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${
-                    errors.customerMessage ? 'border-red-500' : 'border-gray-300'
+                    errors.customerMessage
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                   rows={3}
                   placeholder="Tell us more about your requirements... (minimum 10 characters)"
                 />
                 {errors.customerMessage && (
-                  <p className="mt-1 text-sm text-red-600">{errors.customerMessage.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.customerMessage.message}
+                  </p>
                 )}
               </div>
 
@@ -516,7 +641,7 @@ const CarListing: React.FC = () => {
                   disabled={isSubmitting}
                   className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
+                  {isSubmitting ? "Submitting..." : "Submit Inquiry"}
                 </button>
               </div>
             </form>
@@ -575,15 +700,17 @@ const CarListing: React.FC = () => {
   );
 
   return (
-  <div className="min-h-screen">
+    <div className="min-h-screen">
       {/* Search and View Controls */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="relative flex-1 max-w-lg">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-                isSearching ? 'text-blue-500 animate-pulse' : 'text-gray-400'
-              }`} />
+              <Search
+                className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
+                  isSearching ? "text-blue-500 animate-pulse" : "text-gray-400"
+                }`}
+              />
               <input
                 type="text"
                 placeholder="Search cars by make, model, location..."
@@ -599,14 +726,22 @@ const CarListing: React.FC = () => {
             </div>
             <div className="flex items-center space-x-2 ml-4">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded ${
+                  viewMode === "grid"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded ${
+                  viewMode === "list"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
                 <List className="w-4 h-4" />
               </button>
@@ -625,21 +760,35 @@ const CarListing: React.FC = () => {
               className="lg:hidden w-full mb-2 bg-blue-600 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors text-sm"
             >
               <Filter className="w-4 h-4" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {showFilters ? "Hide Filters" : "Show Filters"}
             </button>
 
             {/* Filters Panel */}
-            <div className={`bg-white rounded-lg shadow-md p-3 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div
+              className={`bg-white rounded-lg shadow-md p-3 ${
+                showFilters ? "block" : "hidden lg:block"
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
                   <Filter className="w-3.5 h-3.5 mr-1.5 text-gray-600" />
-                  <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
+                  <h2 className="text-sm font-semibold text-gray-900">
+                    Filters
+                  </h2>
                 </div>
                 <button
                   onClick={() => {
                     setFilters({
-                      minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
-                      category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
+                      minPrice: "",
+                      maxPrice: "",
+                      make: "",
+                      year: "",
+                      fuelType: "",
+                      category: "",
+                      engineCC: "",
+                      vehicleGrade: "",
+                      transmission: "",
+                      isHotDeal: false,
                     });
                     setPriceRange({ min: 0, max: 50000000 });
                   }}
@@ -651,11 +800,15 @@ const CarListing: React.FC = () => {
 
               <div className="space-y-2.5">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Make</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Make
+                  </label>
                   <select
                     className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.make}
-                    onChange={(e) => setFilters({...filters, make: e.target.value})}
+                    onChange={(e) =>
+                      setFilters({ ...filters, make: e.target.value })
+                    }
                   >
                     <option value="">All Makes</option>
                     <option value="Toyota">Toyota</option>
@@ -673,11 +826,15 @@ const CarListing: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Fuel Type</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Fuel Type
+                  </label>
                   <select
                     className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.fuelType}
-                    onChange={(e) => setFilters({...filters, fuelType: e.target.value})}
+                    onChange={(e) =>
+                      setFilters({ ...filters, fuelType: e.target.value })
+                    }
                   >
                     <option value="">All Types</option>
                     <option value="Petrol">Petrol</option>
@@ -688,11 +845,15 @@ const CarListing: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Category
+                  </label>
                   <select
                     className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.category}
-                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                    onChange={(e) =>
+                      setFilters({ ...filters, category: e.target.value })
+                    }
                   >
                     <option value="">All Categories</option>
                     <option value="Hatchback">Hatchback</option>
@@ -706,11 +867,15 @@ const CarListing: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Transmission</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Transmission
+                  </label>
                   <select
                     className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     value={filters.transmission}
-                    onChange={(e) => setFilters({...filters, transmission: e.target.value})}
+                    onChange={(e) =>
+                      setFilters({ ...filters, transmission: e.target.value })
+                    }
                   >
                     <option value="">All Types</option>
                     <option value="Automatic">Automatic</option>
@@ -723,10 +888,14 @@ const CarListing: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={filters.isHotDeal}
-                      onChange={(e) => setFilters({...filters, isHotDeal: e.target.checked})}
+                      onChange={(e) =>
+                        setFilters({ ...filters, isHotDeal: e.target.checked })
+                      }
                       className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <span className="text-xs font-medium text-gray-700">🔥 Hot Deals Only</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      🔥 Hot Deals Only
+                    </span>
                   </label>
                 </div>
 
@@ -741,8 +910,12 @@ const CarListing: React.FC = () => {
                       {/* Min Price Slider */}
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-[10px] font-medium text-gray-600">Min</label>
-                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.min)}</span>
+                          <label className="text-[10px] font-medium text-gray-600">
+                            Min
+                          </label>
+                          <span className="text-[10px] font-semibold text-blue-600">
+                            {formatPrice(priceRange.min)}
+                          </span>
                         </div>
                         <input
                           type="range"
@@ -777,8 +950,12 @@ const CarListing: React.FC = () => {
                       {/* Max Price Slider */}
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-[10px] font-medium text-gray-600">Max</label>
-                          <span className="text-[10px] font-semibold text-blue-600">{formatPrice(priceRange.max)}</span>
+                          <label className="text-[10px] font-medium text-gray-600">
+                            Max
+                          </label>
+                          <span className="text-[10px] font-semibold text-blue-600">
+                            {formatPrice(priceRange.max)}
+                          </span>
                         </div>
                         <input
                           type="range"
@@ -814,7 +991,8 @@ const CarListing: React.FC = () => {
                       <div className="text-center py-1 px-2 bg-blue-50 rounded border border-blue-100">
                         <p className="text-[9px] text-gray-600">Selected:</p>
                         <p className="text-[11px] font-bold text-blue-700">
-                          {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
+                          {formatPrice(priceRange.min)} -{" "}
+                          {formatPrice(priceRange.max)}
                         </p>
                       </div>
                     </div>
@@ -824,7 +1002,9 @@ const CarListing: React.FC = () => {
                 {/* Cars Found Count - At the end */}
                 <div className="mt-2.5 pt-2 border-t border-gray-200">
                   <div className="py-1.5 px-2 bg-blue-50 rounded border border-blue-200 text-center">
-                    <p className="text-xs font-semibold text-blue-700">{sortedCars.length} Cars Found</p>
+                    <p className="text-xs font-semibold text-blue-700">
+                      {sortedCars.length} Cars Found
+                    </p>
                   </div>
                 </div>
               </div>
@@ -835,48 +1015,72 @@ const CarListing: React.FC = () => {
           <div className="lg:w-3/4">
             {!isLoading && (
               <div className="flex items-center justify-end">
-                <select 
+                <select
                   className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
                   <option value="default">Sort by: Default</option>
-                  <option value="price-low">Sort by: Price (Low to High)</option>
-                  <option value="price-high">Sort by: Price (High to Low)</option>
+                  <option value="price-low">
+                    Sort by: Price (Low to High)
+                  </option>
+                  <option value="price-high">
+                    Sort by: Price (High to Low)
+                  </option>
                   <option value="year-newest">Sort by: Year (Newest)</option>
-                  <option value="mileage-lowest">Sort by: Mileage (Lowest)</option>
+                  <option value="mileage-lowest">
+                    Sort by: Mileage (Lowest)
+                  </option>
                 </select>
               </div>
             )}
 
             {isLoading ? (
-              <div className={viewMode === 'grid' ?
-                "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
-                "space-y-4"
-              }>
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
+                    : "space-y-4"
+                }
+              >
                 {Array.from({ length: 6 }).map((_, index) => (
                   <CarCardSkeleton key={index} />
                 ))}
               </div>
             ) : (
               <>
-                <div className={viewMode === 'grid' ?
-                  "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6" :
-                  "space-y-4"
-                }>
-                  {sortedCars.map(car => (
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
+                      : "space-y-4"
+                  }
+                >
+                  {sortedCars.map((car) => (
                     <CarCard key={car.id} car={car} />
                   ))}
                 </div>
 
                 {sortedCars.length === 0 && (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
+                    <p className="text-gray-500 text-lg">
+                      No cars found matching your criteria.
+                    </p>
                     <button
-                      onClick={() => setFilters({
-                        minPrice: '', maxPrice: '', make: '', year: '', fuelType: '',
-                        category: '', engineCC: '', vehicleGrade: '', transmission: '', isHotDeal: false
-                      })}
+                      onClick={() =>
+                        setFilters({
+                          minPrice: "",
+                          maxPrice: "",
+                          make: "",
+                          year: "",
+                          fuelType: "",
+                          category: "",
+                          engineCC: "",
+                          vehicleGrade: "",
+                          transmission: "",
+                          isHotDeal: false,
+                        })
+                      }
                       className="mt-4 text-blue-600 hover:text-blue-700"
                     >
                       Clear filters
@@ -891,7 +1095,10 @@ const CarListing: React.FC = () => {
 
       {/* Modals */}
       {selectedCar && (
-        <CarDetailModal car={selectedCar} onClose={() => setSelectedCar(null)} />
+        <CarDetailModal
+          car={selectedCar}
+          onClose={() => setSelectedCar(null)}
+        />
       )}
 
       {showInquiryForm && inquiryCar && (

@@ -11,7 +11,7 @@ interface SuccessStoryFormProps {
 }
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-api.onrender.com";
+  process.env.REACT_APP_API_BASE_URL || "https://auto-wheel-1.onrender.com";
 
 const AdminSuccessStoryForm: React.FC<SuccessStoryFormProps> = () => {
   const [customerName, setCustomerName] = useState("");
