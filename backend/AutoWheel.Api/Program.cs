@@ -50,31 +50,28 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine("Starting database setup...");
         
-        // First, try to run migrations normally
-        db.Database.Migrate();
-        Console.WriteLine("Migrations applied successfully");
+        // Simply ensure the database and tables are created
+        var created = db.Database.EnsureCreated();
+        if (created)
+        {
+            Console.WriteLine("Database and tables created successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Database already exists.");
+        }
         
-        // Verify tables exist by trying a simple query
-        try
-        {
-            var carCount = db.Cars.Count();
-            Console.WriteLine($"Database verified. Cars table exists with {carCount} records.");
-        }
-        catch (Exception)
-        {
-            Console.WriteLine($"Tables don't exist after migration. Creating manually...");
-            
-            // Drop and recreate the entire database schema
-            db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
-            
-            Console.WriteLine("Database recreated successfully");
-        }
+        // Verify by counting records
+        var carCount = db.Cars.Count();
+        Console.WriteLine($"Database ready. Cars table has {carCount} records.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Database setup failed: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        Console.WriteLine($"Database setup failed: {ex.GetType().Name}: {ex.Message}");
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+        }
     }
 }
 
