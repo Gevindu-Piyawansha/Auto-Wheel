@@ -48,22 +48,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         Console.WriteLine("Starting database setup...");
-        
-        // Drop all tables and recreate with new schema
-        Console.WriteLine("Recreating database schema...");
-        var sqlDropTables = @"
-            DROP TABLE IF EXISTS ""Cars"" CASCADE;
-            DROP TABLE IF EXISTS ""Inquiries"" CASCADE;
-            DROP TABLE IF EXISTS ""SuccessStories"" CASCADE;
-        ";
-        db.Database.ExecuteSqlRaw(sqlDropTables);
-        Console.WriteLine("Old tables dropped.");
-        
-        // Create tables with new schema
-        db.Database.EnsureCreated();
-        Console.WriteLine("Database and tables created successfully with new schema.");
-        
-        // Verify by counting records
+        db.Database.Migrate();
         var carCount = db.Cars.Count();
         Console.WriteLine($"Database ready. Cars table has {carCount} records.");
     }
