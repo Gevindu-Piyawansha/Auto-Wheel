@@ -48,16 +48,32 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        Console.WriteLine("Starting database migration...");
+        Console.WriteLine("Starting database setup...");
         
-        // Ensure database is created and migrations are applied
-        db.Database.EnsureCreated(); // This will create tables if they don't exist
+        // First, try to run migrations normally
+        db.Database.Migrate();
+        Console.WriteLine("Migrations applied successfully");
         
-        Console.WriteLine("Database schema ensured");
+        // Verify tables exist by trying a simple query
+        try
+        {
+            var carCount = db.Cars.Count();
+            Console.WriteLine($"Database verified. Cars table exists with {carCount} records.");
+        }
+        catch (Exception)
+        {
+            Console.WriteLine($"Tables don't exist after migration. Creating manually...");
+            
+            // Drop and recreate the entire database schema
+            db.Database.EnsureDeleted();
+            db.Database.EnsureCreated();
+            
+            Console.WriteLine("Database recreated successfully");
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Migration failed: {ex.Message}");
+        Console.WriteLine($"Database setup failed: {ex.Message}");
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }
 }
