@@ -49,16 +49,12 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine("Starting database setup...");
         
-        // Simply ensure the database and tables are created
-        var created = db.Database.EnsureCreated();
-        if (created)
-        {
-            Console.WriteLine("Database and tables created successfully.");
-        }
-        else
-        {
-            Console.WriteLine("Database already exists.");
-        }
+        // Force recreate database with new schema
+        Console.WriteLine("Deleting old database to apply new schema...");
+        db.Database.EnsureDeleted();
+        Console.WriteLine("Creating database with new schema...");
+        db.Database.EnsureCreated();
+        Console.WriteLine("Database and tables created successfully with new schema.");
         
         // Verify by counting records
         var carCount = db.Cars.Count();
