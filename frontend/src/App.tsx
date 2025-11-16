@@ -128,6 +128,9 @@ const AppContent: React.FC = () => {
           newCar.image && newCar.image.trim() !== ""
             ? newCar.image
             : getCarImage(newCar.make, newCar.model),
+        features: Array.isArray(newCar.features)
+          ? JSON.stringify(newCar.features)
+          : newCar.features,
       };
 
       console.log("Adding car:", carData);
