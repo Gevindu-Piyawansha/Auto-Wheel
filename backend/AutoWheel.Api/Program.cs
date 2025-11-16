@@ -8,15 +8,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS
-var allowedOrigins = builder.Configuration.GetValue<string>("Cors:AllowedOrigins")?.Split(',')
-    ?? new[] { "http://localhost:3000", "https://auto-wheel-sl.web.app" };
-
+// CORS (hardcoded for production reliability)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.WithOrigins("https://auto-wheel-sl.web.app", "http://localhost:3000")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
