@@ -37,10 +37,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-app.MapControllers();
 
 // Health check endpoint
-app.MapGet("/", () => new { status = "API is running", timestamp = DateTime.UtcNow });
+app.MapGet("/", () => new { status = "API is running", timestamp = DateTime.UtcNow })
+   .RequireCors();
+
+app.MapControllers();
 
 // Auto-migrate database on startup
 using (var scope = app.Services.CreateScope())
