@@ -45,6 +45,10 @@ public class CarsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Car>> CreateCar(Car car)
     {
+        if (string.IsNullOrWhiteSpace(car.Features))
+        {
+            car.Features = "[]";
+        }
         _context.Cars.Add(car);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetCar), new { id = car.Id }, car);
