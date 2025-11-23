@@ -123,14 +123,17 @@ const AppContent: React.FC = () => {
     try {
       const carData = {
         ...newCar,
-        // Only use fallback image if no image URL provided
         image:
           newCar.image && newCar.image.trim() !== ""
             ? newCar.image
             : getCarImage(newCar.make, newCar.model),
         features: Array.isArray(newCar.features)
           ? JSON.stringify(newCar.features)
-          : newCar.features,
+          : typeof newCar.features === "string" &&
+            (newCar.features as string) &&
+            (newCar.features as string).trim() !== ""
+          ? newCar.features
+          : "[]",
       };
 
       console.log("Adding car:", carData);
